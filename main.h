@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+// forward declerations
+// =======================================
+int initialize_sdl(void);
+
 struct Registers {
     // General Purpose Registers, 8-bit registers
     uint8_t V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE;

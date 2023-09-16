@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -Wall -Wextra -O3
+CFLAGS = -Wall -Wextra -Werror -O3
 
 SDL_ROOT = /opt/homebrew/Cellar/sdl2
 SDL_VERSION = 2.28.3
@@ -13,17 +13,27 @@ LINK_FLAGS = -lSDL2
 # LINKS = -L ${SDL_PATH}/lib
 # LINK_FLAGS = -lSDL2
 
-APP = app
+APP = app.out
 
-SRC_FILES = main.c
-OBJ_FILES = main.o
+SRC_FILES = main.c ./helpers/logging.c
+OBJ_FILES = main.o logging.o
 
 ${APP}: ${OBJ_FILES}
 	$(CC) $(CFLAGS) -o $(APP) ${LINKS} $^ $(LINK_FLAGS)
+	@echo
 
 main.o: main.c main.h
 	$(CC) $(CFLAGS) ${INCLUDES} -c $^
 
+logging.o: ./helpers/logging.c ./helpers/logging.h
+	$(CC) $(CFLAGS) ${INCLUDES} -c $^
+
+.PHONY: run
+run: ${APP}
+	@echo Running ${APP} ...
+	@./${APP} && echo "${APP}" exited with: $$?
+
+.PHONY: clean
 clean:
 	rm -rf $(OBJ_FILES) $(APP)
 	rm -rf *.gch
