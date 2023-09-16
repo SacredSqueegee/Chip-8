@@ -37,6 +37,9 @@
 			"Chip-8.code-workspace": true,
 			".gitignore": true
 		},
-		"hidefiles.selectedProfile": "Default"
+		"hidefiles.selectedProfile": "Default",
+		"files.associations": {
+			"stdint.h": "c"
+		}
 	}
 }

@@ -2,10 +2,26 @@
 #define MAIN_H_IRISH
 
 #include <stdint.h>
+#include <SDL2/SDL.h>
+
+typedef struct
+{
+    uint8_t window_scale;
+    uint32_t window_width;
+    uint32_t window_height;
+} config_t;
+
+
+typedef struct
+{
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+} sdl_t;
 
 // forward declerations
 // =======================================
-int initialize_sdl(void);
+int initialize_sdl(sdl_t *sdl, config_t config);
+void cleanup_sdl(sdl_t *sdl);
 
 struct Registers {
     // General Purpose Registers, 8-bit registers
