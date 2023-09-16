@@ -48,3 +48,4 @@ static void Print_Color(FILE *stream, const char *msg, const char *colorCode)
     fprintf(stream, "%s", msg);
     fprintf(stream, "%s", COLOR_RESET); 
 }
+#define Print_Color cannot_call_Print_Color_outside_logging

@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -Wall -Wextra -Werror -O3
+CFLAGS = -Wall -Wextra -Werror -O3 -std=c17
 
 SDL_ROOT = /opt/homebrew/Cellar/sdl2
 SDL_VERSION = 2.28.3
@@ -23,7 +23,7 @@ ${APP}: ${OBJ_FILES}
 	@echo
 
 main.o: main.c main.h
-	$(CC) $(CFLAGS) ${INCLUDES} -c $^
+	$(CC) $(CFLAGS) ${INCLUDES} -Wno-unused-function -c $^
 
 logging.o: ./helpers/logging.c ./helpers/logging.h
 	$(CC) $(CFLAGS) ${INCLUDES} -c $^
@@ -36,4 +36,4 @@ run: ${APP}
 .PHONY: clean
 clean:
 	rm -rf $(OBJ_FILES) $(APP)
-	rm -rf *.gch
+	rm -rf *.gch ./helpers/*.gch

@@ -28,7 +28,7 @@ int main()
 
     if (window == NULL)
     {
-        printf("could not create window: %s\n", SDL_GetError());
+        Log_Err("could not create window: %s\n", SDL_GetError());
         return 1;
     }
 
@@ -57,12 +57,9 @@ int initialize_sdl()
 {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0)
     {
-        printf("Could not initialize video subsystem: %s\n", SDL_GetError());
+        Log_Err("Could not initialize video subsystem: %s\n", SDL_GetError());
         return 1;
     }
-    printf("[+] Initialized: VIDEO, AUDIO, and TIMER modules.\n");
-    Log_Info("This is info log...");
-    Log_Warn("This is warning log...");
-    Log_Err("This is error log...");
+    Log_Info("Initialized: VIDEO, AUDIO, and TIMER modules.");
     return 0;
 }
