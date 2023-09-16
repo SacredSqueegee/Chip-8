@@ -1,5 +1,7 @@
-# Chip-8
-Chip-8 implementation
+# Chip-8 Interpreter
+
+### Current Status:
+#### Working on SDL2 graphics for Chip-8 implementation
 
 Notes:
 - built on macOS w/ m1 chip
