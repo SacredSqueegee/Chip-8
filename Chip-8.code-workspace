@@ -32,8 +32,11 @@
 			"**/.svn": true,
 			"**/.hg": true,
 			"**/CVS": true,
-			"**/.DS_Store": true
+			"**/.DS_Store": true,
+			".vscode/": true,
+			"Chip-8.code-workspace": true,
+			".gitignore": true
 		},
-		"hidefiles.selectedProfile": "Show All Files"
+		"hidefiles.selectedProfile": "Default"
 	}
 }
