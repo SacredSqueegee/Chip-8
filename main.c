@@ -34,9 +34,10 @@ int main()
     bool quit = false;
     while (!quit)
     {
-        // Clear screen to background color
-        SDL_SetRenderDrawColor(sdl.renderer, config.bg_color.r, config.bg_color.g, config.bg_color.b, config.bg_color.a);
-        SDL_RenderClear(sdl.renderer);
+        // Delay for 60hz/60fps
+        // Update window with changes
+        
+        clear_screen(sdl, config);
 
         // Draw black rectangle
         SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
@@ -61,6 +62,13 @@ int main()
 
     cleanup_sdl(&sdl);
     return 0;
+}
+
+void clear_screen(sdl_t sdl, const config_t config)
+{
+    // Clear screen to background color
+    SDL_SetRenderDrawColor(sdl.renderer, config.bg_color.r, config.bg_color.g, config.bg_color.b, config.bg_color.a);
+    SDL_RenderClear(sdl.renderer);
 }
 
 

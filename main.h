@@ -40,6 +40,7 @@ typedef struct
 
 // forward declerations
 // =======================================
+void clear_screen(sdl_t sdl, const config_t config);
 int initialize_sdl(sdl_t *sdl, config_t config);
 void cleanup_sdl(sdl_t *sdl);
 
