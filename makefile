@@ -23,7 +23,7 @@ ${APP}: ${OBJ_FILES}
 	@echo
 
 main.o: main.c main.h
-	$(CC) $(CFLAGS) ${INCLUDES} -Wno-unused-function -c $^
+	$(CC) $(CFLAGS) ${INCLUDES} -c $^
 
 logging.o: ./helpers/logging.c ./helpers/logging.h
 	$(CC) $(CFLAGS) ${INCLUDES} -c $^

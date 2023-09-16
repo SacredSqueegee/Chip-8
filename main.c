@@ -14,7 +14,6 @@
 
 int main()
 {
-
     if (initialize_sdl())
         return 1;
 

@@ -3,15 +3,6 @@
 
 #include "logging.h"
 
-void Log(FILE *stream, const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    vfprintf(stream, format, args);
-    va_end(args);
-    fprintf(stream, "\n");
-}
-
 void Log_Info(const char *format, ...)
 {
     Print_Color(stdout, "[+] ", COLOR_GREEN);
@@ -41,6 +32,16 @@ void Log_Err(const char *format, ...)
     Log(stderr, format, args);
     va_end(args);
 }
+
+static void Log(FILE *stream, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(stream, format, args);
+    va_end(args);
+    fprintf(stream, "\n");
+}
+#define Log cannot_call_Log_ourside_logging
 
 static void Print_Color(FILE *stream, const char *msg, const char *colorCode)
 {
