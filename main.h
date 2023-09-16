@@ -9,6 +9,26 @@ typedef struct
     uint8_t window_scale;
     uint32_t window_width;
     uint32_t window_height;
+
+    union
+    {
+        uint32_t value;
+        struct
+        {
+            uint8_t a, b, g, r;     // reverse order b/c of endianness
+        };
+        
+    }fg_color;
+
+    union
+    {
+        uint32_t value;
+        struct
+        {
+            uint8_t a, b, g, r;     // reverse orcer b/c of endianness
+        };
+        
+    }bg_color;
 } config_t;
 
 

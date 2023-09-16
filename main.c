@@ -17,10 +17,12 @@
 int main()
 {
     // initialize emulator configurations/options
-    config_t config = {
-        DISPLAY_SCALE,
-        DISPLAY_WIDTH,
-        DISPALY_HEIGHT
+    config_t config = (config_t) {
+        .window_scale = DISPLAY_SCALE,
+        .window_width = DISPLAY_WIDTH,
+        .window_height = DISPALY_HEIGHT,
+        .fg_color.value = 0xFFFFFFFF,
+        .bg_color.value = 0x000000FF
     };
 
     sdl_t sdl = {0};
@@ -33,11 +35,11 @@ int main()
     while (!quit)
     {
         // Clear screen to background color
-        SDL_SetRenderDrawColor(sdl.renderer, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(sdl.renderer, config.bg_color.r, config.bg_color.g, config.bg_color.b, config.bg_color.a);
         SDL_RenderClear(sdl.renderer);
 
         // Draw black rectangle
-        SDL_SetRenderDrawColor(sdl.renderer, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
         SDL_FRect rect = {0*config.window_scale, 0*config.window_scale, 10*config.window_scale, 10*config.window_scale};
         SDL_RenderFillRectF(sdl.renderer, &rect);
 

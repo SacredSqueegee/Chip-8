@@ -22,7 +22,7 @@ ${APP}: ${OBJ_FILES}
 	$(CC) $(CFLAGS) -o $(APP) ${LINKS} $^ $(LINK_FLAGS)
 	@echo
 
-main.o: main.c main.h
+main.o: main.c main.h ./helpers/logging.h
 	$(CC) $(CFLAGS) ${INCLUDES} -c $^
 
 logging.o: ./helpers/logging.c ./helpers/logging.h
