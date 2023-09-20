@@ -41,8 +41,22 @@ int main()
 
         // Draw black rectangle
         SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
-        SDL_FRect rect = {0*config.window_scale, 0*config.window_scale, 10*config.window_scale, 10*config.window_scale};
-        SDL_RenderFillRectF(sdl.renderer, &rect);
+        // SDL_FRect rect = {0*config.window_scale, 0*config.window_scale, 1*config.window_scale, 1*config.window_scale};
+        // SDL_RenderFillRectF(sdl.renderer, &rect);
+
+        // Draw checkerboard pattern
+        for(uint32_t i=0; i<config.window_height; i++)
+        {
+            for(uint32_t j=0; j<config.window_width; j++)
+            {
+                if(j%2==0 && i%2==1)
+                    continue;
+                if(j%2==1 && i%2==0)
+                    continue;
+                SDL_FRect rect = {j*config.window_scale, i*config.window_scale, 1*config.window_scale, 1*config.window_scale};
+                SDL_RenderFillRectF(sdl.renderer, &rect);
+            }
+        }
 
         // Poll for and handle events
         while (SDL_PollEvent(&e))
