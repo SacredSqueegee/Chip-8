@@ -193,15 +193,20 @@ void handle_input(sdl_t sdl, const config_t config, chip8_t *chip8)
 
 int initialize_chip8(chip8_t *chip8, const config_t config)
 {
+    printf("\n");
+    Log_Info("Creating Chip-8 object...");
+
     // Allocate memory for display data
-    chip8->display = (bool*) calloc((config.window_height*config.window_width), sizeof(bool));
+    int displaySize = (config.window_height*config.window_width);
+    chip8->display = (bool*) calloc(displaySize, sizeof(bool));
     if(chip8->display == NULL)
     {
         Log_Err("Unable to allocate dynamic memory for Chip-8 display");
         return 1;
     }
+    Log_Info("Allocated %i [bytes] of display memory", displaySize*sizeof(bool));
+    printf("\t\\_ For display of %ix%i\n", config.window_width, config.window_height);
 
-    Log_Info("Created Chip-8 object");
     return 0;       // success
 }
 

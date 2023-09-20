@@ -16,7 +16,7 @@
 
 #define COLOR_RESET "\033[0m"
 
-// These prepend a colored log symbol to our log msg before calling Log()
+// These prepend a colored log symbol to our log msg 
 void Log_Info( const char* format, ... );
 void Log_Warn( const char* format, ... );
 void Log_Err( const char* format, ... );
@@ -25,8 +25,6 @@ void Log_Err( const char* format, ... );
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
 
-// Wrapper for fprintf() to allow custom logging messages
-static void Log( FILE* stream, const char* format, ... );
 // Used to write 'msg' with the specified 'colorCode'
 static void Print_Color(FILE *stream, const char *msg, const char *colorCode);
 

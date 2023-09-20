@@ -9,8 +9,9 @@ void Log_Info(const char *format, ...)
 
     va_list args;
     va_start(args, format);
-    Log(stdout, format, args);
+    vfprintf(stdout, format, args);
     va_end(args);
+    fprintf(stdout, "\n");
 }
 
 void Log_Warn(const char *format, ...)
@@ -19,8 +20,9 @@ void Log_Warn(const char *format, ...)
 
     va_list args;
     va_start(args, format);
-    Log(stdout, format, args);
+    vfprintf(stdout, format, args);
     va_end(args);
+    fprintf(stdout, "\n");
 }
 
 void Log_Err(const char *format, ...)
@@ -29,19 +31,10 @@ void Log_Err(const char *format, ...)
 
     va_list args;
     va_start(args, format);
-    Log(stderr, format, args);
+    vfprintf(stderr, format, args);
     va_end(args);
+    fprintf(stderr, "\n");
 }
-
-static void Log(FILE *stream, const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    vfprintf(stream, format, args);
-    va_end(args);
-    fprintf(stream, "\n");
-}
-#define Log cannot_call_Log_ourside_logging
 
 static void Print_Color(FILE *stream, const char *msg, const char *colorCode)
 {
