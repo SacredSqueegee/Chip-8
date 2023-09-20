@@ -157,18 +157,29 @@ void handle_input(sdl_t *sdl, const config_t config)
 
     // Poll for and handle events
     while (SDL_PollEvent(&e))
-    {
-        if (e.type == SDL_QUIT)
-            sdl->running = false;
-        if (e.type == SDL_KEYDOWN)
-            SDL_SetWindowSize(sdl->window, config.window_width*config.window_scale, config.window_height*config.window_scale);
-        if (e.type == SDL_MOUSEBUTTONDOWN)
-            SDL_SetWindowSize(sdl->window, config.window_width*config.window_scale/2, config.window_height*config.window_scale/2);
-        
+    {        
         switch (e.type)
         {
             case SDL_QUIT:
                 sdl->running = false;
+                break;
+            
+            case SDL_KEYDOWN:
+                // switch of the specific key
+                switch(e.key.keysym.sym)
+                {
+                    case SDLK_ESCAPE:
+                        sdl->running = false;
+                        break;
+                    
+                    default:
+                        SDL_SetWindowSize(sdl->window, config.window_width*config.window_scale/2, config.window_height*config.window_scale/2);
+                        break;
+                }
+                break;
+            
+            case SDL_KEYUP:
+                SDL_SetWindowSize(sdl->window, config.window_width*config.window_scale, config.window_height*config.window_scale);
                 break;
             
             default:
@@ -180,5 +191,5 @@ void handle_input(sdl_t *sdl, const config_t config)
 int initialize_chip8(chip8_t *chip8)
 {
     (void)chip8;
-    return 0;
+    return 0;       // success
 }
