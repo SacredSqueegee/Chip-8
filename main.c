@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 
 #include "main.h"
+#include "chip8.h"
 #include "helpers/logging.h"
 
 
@@ -32,18 +33,18 @@ int main()
     
     // Initialize Chip-8 machine
     chip8_t chip8 = {0};
-    if (initialize_chip8(&chip8))
+    if (initialize_chip8(&chip8, config))
         return 1;
 
     // TODO:
     // Get loop start time
 
     // Main Loop
-    sdl.running = true;
-    while (sdl.running)
+    chip8.state = RUNNING;
+    while (chip8.state == RUNNING)
     {
         // Handle User Input
-        handle_input(&sdl, config);
+        handle_input(sdl, config, &chip8);
 
         // TODO:
         // Check chip-8 state
@@ -57,9 +58,11 @@ int main()
         // TODO:
         // Get elapsed time and
         // Delay for 60hz/60fps
+        SDL_Delay(16);
 
     } // ~Main Loop
 
+    destroy_chip8(&chip8);
     cleanup_sdl(&sdl);
     return 0;
 }
@@ -151,7 +154,7 @@ void cleanup_sdl(sdl_t *sdl)
     Log_Info("Shutdown sub-modules and SDL");
 }
 
-void handle_input(sdl_t *sdl, const config_t config)
+void handle_input(sdl_t sdl, const config_t config, chip8_t *chip8)
 {
     SDL_Event e;
 
@@ -161,7 +164,7 @@ void handle_input(sdl_t *sdl, const config_t config)
         switch (e.type)
         {
             case SDL_QUIT:
-                sdl->running = false;
+                chip8->state = QUIT;
                 break;
             
             case SDL_KEYDOWN:
@@ -169,17 +172,17 @@ void handle_input(sdl_t *sdl, const config_t config)
                 switch(e.key.keysym.sym)
                 {
                     case SDLK_ESCAPE:
-                        sdl->running = false;
+                        chip8->state = QUIT;
                         break;
                     
                     default:
-                        SDL_SetWindowSize(sdl->window, config.window_width*config.window_scale/2, config.window_height*config.window_scale/2);
+                        SDL_SetWindowSize(sdl.window, config.window_width*config.window_scale/2, config.window_height*config.window_scale/2);
                         break;
                 }
                 break;
             
             case SDL_KEYUP:
-                SDL_SetWindowSize(sdl->window, config.window_width*config.window_scale, config.window_height*config.window_scale);
+                SDL_SetWindowSize(sdl.window, config.window_width*config.window_scale, config.window_height*config.window_scale);
                 break;
             
             default:
@@ -188,8 +191,27 @@ void handle_input(sdl_t *sdl, const config_t config)
     } // ~Poll Events
 }
 
-int initialize_chip8(chip8_t *chip8)
+int initialize_chip8(chip8_t *chip8, const config_t config)
 {
-    (void)chip8;
+    // Allocate memory for display data
+    chip8->display = (bool*) calloc((config.window_height*config.window_width), sizeof(bool));
+    if(chip8->display == NULL)
+    {
+        Log_Err("Unable to allocate dynamic memory for Chip-8 display");
+        return 1;
+    }
+
+    Log_Info("Created Chip-8 object");
     return 0;       // success
+}
+
+void destroy_chip8(chip8_t *chip8)
+{
+    printf("\n");
+    Log_Warn("Destroying Chip-8 object...");
+
+    //de-allocate display memory
+    free(chip8->display);
+    Log_Info("Freed Chip-8 display memory");
+
 }
