@@ -2,8 +2,10 @@
 #define MAIN_H_IRISH
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 
+// Configuration Specification Structure
 typedef struct
 {
     uint8_t window_scale;
@@ -32,17 +34,38 @@ typedef struct
 } config_t;
 
 
+// SDL Configuration Information
 typedef struct
 {
+    bool running;
     SDL_Window *window;
     SDL_Renderer *renderer;
 } sdl_t;
 
+
+// Emulator states
+typedef enum {
+    QUIT = 0,
+    RUNNING,
+    PAUSED
+} emulator_state_t;
+
+// CHIP-8 Machine object
+typedef struct {
+    emulator_state_t state;
+} chip8_t;
+
+
 // forward declerations
 // =======================================
+void update_screen(sdl_t sdl, const config_t config);
 void clear_screen(sdl_t sdl, const config_t config);
-int initialize_sdl(sdl_t *sdl, config_t config);
+int initialize_sdl(sdl_t *sdl, const config_t config);
 void cleanup_sdl(sdl_t *sdl);
+
+void handle_input(sdl_t *sdl, const config_t config);
+
+int initialize_chip8(chip8_t *chip8);
 
 struct Registers {
     // General Purpose Registers, 8-bit registers

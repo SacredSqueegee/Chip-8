@@ -25,18 +25,47 @@ int main()
         .bg_color.value = 0x000000FF
     };
 
+    // Initialize SDL
     sdl_t sdl = {0};
     if (initialize_sdl(&sdl, config))
         return 1;
+    
+    // Initialize Chip-8 machine
+    chip8_t chip8 = {0};
+    if (initialize_chip8(&chip8))
+        return 1;
+
+    // TODO:
+    // Get loop start time
 
     // Main Loop
-    SDL_Event e;
-    bool quit = false;
-    while (!quit)
+    sdl.running = true;
+    while (sdl.running)
     {
-        // Delay for 60hz/60fps
-        // Update window with changes
+        // Handle User Input
+        handle_input(&sdl, config);
+
+        // TODO:
+        // Check chip-8 state
+        // if paused: skip/do something else???...
+
+        // Emulate Chip-8 instructions
         
+        // Update window with changes
+        update_screen(sdl, config);       
+
+        // TODO:
+        // Get elapsed time and
+        // Delay for 60hz/60fps
+
+    } // ~Main Loop
+
+    cleanup_sdl(&sdl);
+    return 0;
+}
+
+void update_screen(sdl_t sdl, const config_t config)
+{
         clear_screen(sdl, config);
 
         // Draw black rectangle
@@ -58,24 +87,8 @@ int main()
             }
         }
 
-        // Poll for and handle events
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
-                quit = true;
-            if (e.type == SDL_KEYDOWN)
-                SDL_SetWindowSize(sdl.window, config.window_width*config.window_scale, config.window_height*config.window_scale);
-            if (e.type == SDL_MOUSEBUTTONDOWN)
-                SDL_SetWindowSize(sdl.window, config.window_width*config.window_scale/2, config.window_height*config.window_scale/2);
-        } // ~Poll Events
-
         // Display renderer to window
         SDL_RenderPresent(sdl.renderer);
-
-    } // ~Main Loop
-
-    cleanup_sdl(&sdl);
-    return 0;
 }
 
 void clear_screen(sdl_t sdl, const config_t config)
@@ -85,8 +98,7 @@ void clear_screen(sdl_t sdl, const config_t config)
     SDL_RenderClear(sdl.renderer);
 }
 
-
-int initialize_sdl(sdl_t *sdl, config_t config)
+int initialize_sdl(sdl_t *sdl, const config_t config)
 {
     // Initialize sub-systems
     if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0)
@@ -127,7 +139,6 @@ int initialize_sdl(sdl_t *sdl, config_t config)
     return 0;
 }
 
-
 void cleanup_sdl(sdl_t *sdl)
 {
     printf("\n");
@@ -138,4 +149,36 @@ void cleanup_sdl(sdl_t *sdl)
     Log_Info("Destroyed Window");
     SDL_Quit();
     Log_Info("Shutdown sub-modules and SDL");
+}
+
+void handle_input(sdl_t *sdl, const config_t config)
+{
+    SDL_Event e;
+
+    // Poll for and handle events
+    while (SDL_PollEvent(&e))
+    {
+        if (e.type == SDL_QUIT)
+            sdl->running = false;
+        if (e.type == SDL_KEYDOWN)
+            SDL_SetWindowSize(sdl->window, config.window_width*config.window_scale, config.window_height*config.window_scale);
+        if (e.type == SDL_MOUSEBUTTONDOWN)
+            SDL_SetWindowSize(sdl->window, config.window_width*config.window_scale/2, config.window_height*config.window_scale/2);
+        
+        switch (e.type)
+        {
+            case SDL_QUIT:
+                sdl->running = false;
+                break;
+            
+            default:
+                break;
+        }
+    } // ~Poll Events
+}
+
+int initialize_chip8(chip8_t *chip8)
+{
+    (void)chip8;
+    return 0;
 }
