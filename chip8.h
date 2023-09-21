@@ -46,4 +46,7 @@ typedef struct {
     uint16_t entrypoint;      // Entrypoint for chip-8 programs
 } chip8_t;
 
+// Chip-8 Utility functions
+int load_rom(char *romPath, void *dest, int dw_dest, int sz_dest);
+
 #endif

@@ -15,8 +15,8 @@ LINK_FLAGS = -lSDL2
 
 APP = app.out
 
-SRC_FILES = main.c ./helpers/logging.c
-OBJ_FILES = main.o logging.o
+SRC_FILES = main.c chip8.c ./helpers/logging.c
+OBJ_FILES = main.o chip8.o logging.o
 
 ${APP}: ${OBJ_FILES}
 	$(CC) $(CFLAGS) -o $(APP) ${LINKS} $^ $(LINK_FLAGS)
@@ -25,13 +25,18 @@ ${APP}: ${OBJ_FILES}
 main.o: main.c main.h chip8.h ./helpers/logging.h
 	$(CC) $(CFLAGS) ${INCLUDES} -c $^
 
+chip8.o: chip8.c chip8.h ./helpers/logging.h
+	$(CC) $(CFLAGS) ${INCLUDES} -c $^
+
 logging.o: ./helpers/logging.c ./helpers/logging.h
 	$(CC) $(CFLAGS) ${INCLUDES} -c $^
+
 
 .PHONY: run
 run: ${APP}
 	@echo Running ${APP} ...
 	@./${APP} && echo "${APP}" exited with: $$?
+
 
 .PHONY: clean
 clean:

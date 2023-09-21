@@ -16,9 +16,6 @@
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
 
-#define ROM_PATH_LIMIT 254
-
-
 int main(int argc, char *argv[])
 {
     // initialize emulator configurations/options
@@ -230,13 +227,12 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
     chip8->romName = romName;
 
     // allocate +1 more memory for \0; calloc zeros memory so no need to add \0 to end
-    chip8->romPath = (char*) calloc(ROM_PATH_LIMIT+1, sizeof(char));
+    int romPathLen = strlen(chip8->romName) + strlen(config.rom_path) + 1;
+    chip8->romPath = (char*) calloc(romPathLen, sizeof(char));
     if(chip8->romPath == NULL)
         return Log_Err("Unable to allocate dynamic memory for Chip-8 romPath");
-    Log_Info("Allocated %i [bytes] of romPath memory", ROM_PATH_LIMIT*sizeof(char));
+    Log_Info("Allocated %i [bytes] of romPath memory", (romPathLen*sizeof(char)));
 
-    if (strlen(romName) + strlen(config.rom_path) > ROM_PATH_LIMIT)
-        return Log_Err("ROM path length is too long. Must be <= %i characters", ROM_PATH_LIMIT);
     strcpy(chip8->romPath, config.rom_path);
     strcat(chip8->romPath, chip8->romName);
 
@@ -247,20 +243,11 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
 
 
     // Read ROM file into RAM
-    FILE *fp = fopen(chip8->romPath, "rb");
-    if (fp == NULL)
-    {
-        Log_Err("Unable to open ROM '%s' from: %s", chip8->romName, chip8->romPath);
-        fprintf(stderr, "\t\\_ Error: %i -> %s", errno, strerror(errno));
+    void *ramEntry_ptr = &(chip8->ram[chip8->entrypoint]);
+    int programSize = 4096-(chip8->entrypoint);
+    if(load_rom(chip8->romPath, ramEntry_ptr, sizeof(uint8_t), programSize) != 0)
         return 1;
-    }
-
-    if (fread(&(chip8->ram[chip8->entrypoint]), sizeof(uint8_t), 4096-chip8->entrypoint, fp) == 0)
-        return Log_Err("Error reading ROM: '%s' or rom is empty", chip8->romName);
     Log_Info("Loaded ROM: '%s', from: '%s', into RAM", chip8->romName, chip8->romPath);
-
-    if (fclose(fp) != 0)
-        Log_Warn("Unable to close file pointer to ROM: '%s'", chip8->romName);
 
 
     // Set chip-8 defaults
