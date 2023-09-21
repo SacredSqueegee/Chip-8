@@ -3,7 +3,7 @@
 
 #include "logging.h"
 
-void Log_Info(const char *format, ...)
+int Log_Info(const char *format, ...)
 {
     Print_Color(stdout, "[+] ", COLOR_GREEN);
 
@@ -12,9 +12,11 @@ void Log_Info(const char *format, ...)
     vfprintf(stdout, format, args);
     va_end(args);
     fprintf(stdout, "\n");
+
+    return 0;
 }
 
-void Log_Warn(const char *format, ...)
+int Log_Warn(const char *format, ...)
 {
     Print_Color(stdout, "[!] ", COLOR_YELLOW);
 
@@ -23,9 +25,11 @@ void Log_Warn(const char *format, ...)
     vfprintf(stdout, format, args);
     va_end(args);
     fprintf(stdout, "\n");
+
+    return 0;
 }
 
-void Log_Err(const char *format, ...)
+int Log_Err(const char *format, ...)
 {
     Print_Color(stderr, "[-] ", COLOR_RED);
 
@@ -34,6 +38,8 @@ void Log_Err(const char *format, ...)
     vfprintf(stderr, format, args);
     va_end(args);
     fprintf(stderr, "\n");
+
+    return 1;
 }
 
 static void Print_Color(FILE *stream, const char *msg, const char *colorCode)

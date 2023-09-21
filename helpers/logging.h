@@ -17,9 +17,9 @@
 #define COLOR_RESET "\033[0m"
 
 // These prepend a colored log symbol to our log msg 
-void Log_Info( const char* format, ... );
-void Log_Warn( const char* format, ... );
-void Log_Err( const char* format, ... );
+int Log_Info( const char* format, ... );
+int Log_Warn( const char* format, ... );
+int Log_Err( const char* format, ... );
 
 
 #pragma clang diagnostic push
