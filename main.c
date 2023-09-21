@@ -18,6 +18,8 @@
 
 int main(int argc, char *argv[])
 {
+    // TODO: Add default usage statement...
+
     // initialize emulator configurations/options
     config_t config = (config_t) {
         .window_scale = DISPLAY_SCALE,
@@ -59,10 +61,11 @@ int main(int argc, char *argv[])
         // TODO:
         // Check chip-8 state
         // if paused: skip/do something else???...
-        // TODO: need to pause audio during this as well...
+        // FIXME: need to pause audio during this as well...
         if (chip8.state == PAUSED) continue;
 
         // Emulate Chip-8 instructions
+        emulate_instruction(&chip8);
         
         // Update window with changes
         update_screen(sdl, config);       

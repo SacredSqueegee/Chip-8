@@ -45,3 +45,9 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
 
     return 0;
 }
+
+
+void emulate_instruction(chip8_t *chip8)
+{
+
+}

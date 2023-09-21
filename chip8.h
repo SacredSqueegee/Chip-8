@@ -48,5 +48,6 @@ typedef struct {
 
 // Chip-8 Utility functions
 int load_rom(char *romPath, void *dest, int sz_inp, int num_elements);
+void emulate_instruction(chip8_t *chip8);
 
 #endif
