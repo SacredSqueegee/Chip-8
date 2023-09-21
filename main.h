@@ -49,7 +49,7 @@ typedef struct
 } sdl_t;
 
 
-// forward declerations
+// forward declarations
 // =======================================
 void update_screen(sdl_t sdl, const config_t config);
 void clear_screen(sdl_t sdl, const config_t config);
