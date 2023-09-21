@@ -24,6 +24,16 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
         return 1;
     }
 
+    // Calculate file and dest size
+    const long dest_size = num_elements * sz_inp;
+
+    fseek(fp, 0, SEEK_END);
+    const long rom_size = ftell(fp);
+    rewind(fp);
+
+    if (rom_size > dest_size)
+        return Log_Err("Destination size [%i Bytes] is smaller than input ROM size [%i Bytes]", dest_size, rom_size);
+
     // Load ROM to destination
     if (fread(dest, sz_inp, num_elements, fp) == 0)
         return Log_Err("Error reading ROM from: '%s' or rom is empty", romPath);
