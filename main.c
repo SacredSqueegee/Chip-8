@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -12,18 +14,23 @@
 // 10-20 seem to be good scaling numbers
 #define DISPLAY_SCALE 20
 #define DISPLAY_WIDTH 64
-#define DISPALY_HEIGHT 32
+#define DISPLAY_HEIGHT 32
+
+#define ROM_PATH_LIMIT 254
 
 
-int main()
+int main(int argc, char *argv[])
 {
     // initialize emulator configurations/options
     config_t config = (config_t) {
         .window_scale = DISPLAY_SCALE,
         .window_width = DISPLAY_WIDTH,
-        .window_height = DISPALY_HEIGHT,
+        .window_height = DISPLAY_HEIGHT,
         .fg_color.value = 0xFFFFFFFF,
-        .bg_color.value = 0x000000FF
+        .bg_color.value = 0x000000FF,
+        .config_path = "./configs/",
+        .rom_path = "./roms/",
+        .entrypoint = 0x200
     };
 
     // Initialize SDL
@@ -31,16 +38,21 @@ int main()
     if (initialize_sdl(&sdl, config))
         return 1;
     
+    // Get ROM name from cli args
+    char *romName = "test/IBM Logo.ch8";
+    if (argc > 1)
+        romName = argv[1];
+    // Log_Info("Loading ROM: %s", romName);
+    
     // Initialize Chip-8 machine
     chip8_t chip8 = {0};
-    if (initialize_chip8(&chip8, config))
+    if (initialize_chip8(&chip8, config, romName))
         return 1;
 
     // TODO:
     // Get loop start time
 
     // Main Loop
-    chip8.state = RUNNING;
     while (chip8.state == RUNNING)
     {
         // Handle User Input
@@ -191,21 +203,69 @@ void handle_input(sdl_t sdl, const config_t config, chip8_t *chip8)
     } // ~Poll Events
 }
 
-int initialize_chip8(chip8_t *chip8, const config_t config)
+int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
 {
     printf("\n");
     Log_Info("Creating Chip-8 object...");
 
     // Allocate memory for display data
+    // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
     int displaySize = (config.window_height*config.window_width);
     chip8->display = (bool*) calloc(displaySize, sizeof(bool));
     if(chip8->display == NULL)
-    {
-        Log_Err("Unable to allocate dynamic memory for Chip-8 display");
-        return 1;
-    }
+        return Log_Err("Unable to allocate dynamic memory for Chip-8 display");
+    
     Log_Info("Allocated %i [bytes] of display memory", displaySize*sizeof(bool));
     printf("\t\\_ For display of %ix%i\n", config.window_width, config.window_height);
+
+
+    // Load Font
+    // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+
+
+
+    // Load Rom to Chip-8 Memory
+    // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+    // Create path to ROM
+    chip8->romName = romName;
+
+    // allocate +1 more memory for \0; calloc zeros memory so no need to add \0 to end
+    chip8->romPath = (char*) calloc(ROM_PATH_LIMIT+1, sizeof(char));
+    if(chip8->romPath == NULL)
+        return Log_Err("Unable to allocate dynamic memory for Chip-8 romPath");
+    Log_Info("Allocated %i [bytes] of romPath memory", ROM_PATH_LIMIT*sizeof(char));
+
+    if (strlen(romName) + strlen(config.rom_path) > ROM_PATH_LIMIT)
+        return Log_Err("ROM path length is too long. Must be <= %i characters", ROM_PATH_LIMIT);
+    strcpy(chip8->romPath, config.rom_path);
+    strcat(chip8->romPath, chip8->romName);
+
+
+    // Set entrypoint from config data
+    chip8->entrypoint = config.entrypoint;
+    Log_Info("Setting entrypoint to %#03x", chip8->entrypoint);
+
+
+    // Read ROM file into RAM
+    FILE *fp = fopen(chip8->romPath, "rb");
+    if (fp == NULL)
+    {
+        Log_Err("Unable to open ROM '%s' from: %s", chip8->romName, chip8->romPath);
+        fprintf(stderr, "\t\\_ Error: %i -> %s", errno, strerror(errno));
+        return 1;
+    }
+
+    if (fread(&(chip8->ram[chip8->entrypoint]), sizeof(uint8_t), 4096-chip8->entrypoint, fp) == 0)
+        return Log_Err("Error reading ROM: '%s' or rom is empty", chip8->romName);
+    Log_Info("Loaded ROM: '%s', from: '%s', into RAM", chip8->romName, chip8->romPath);
+
+    if (fclose(fp) != 0)
+        Log_Warn("Unable to close file pointer to ROM: '%s'", chip8->romName);
+
+
+    // Set chip-8 defaults
+    // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+    chip8->state = RUNNING;
 
     return 0;       // success
 }
@@ -218,5 +278,9 @@ void destroy_chip8(chip8_t *chip8)
     //de-allocate display memory
     free(chip8->display);
     Log_Info("Freed Chip-8 display memory");
+
+    // de-allocate romPath memory
+    free(chip8->romPath);
+    Log_Info("Freed Chip-8 romPath memory");
 
 }

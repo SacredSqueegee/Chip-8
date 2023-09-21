@@ -23,7 +23,6 @@ typedef struct
         };
         
     }fg_color;
-
     union
     {
         uint32_t value;
@@ -33,6 +32,12 @@ typedef struct
         };
         
     }bg_color;
+
+    char *config_path;
+    char *rom_path;
+
+    const uint16_t entrypoint;
+
 } config_t;
 
 
@@ -53,7 +58,7 @@ void cleanup_sdl(sdl_t *sdl);
 
 void handle_input(sdl_t sdl, const config_t config, chip8_t *chip8);
 
-int initialize_chip8(chip8_t *chip8, const config_t config);
+int initialize_chip8(chip8_t *chip8, const config_t config, char *romName);
 void destroy_chip8(chip8_t *chip8);
 
 #endif

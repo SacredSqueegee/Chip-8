@@ -38,7 +38,12 @@ typedef struct {
     uint8_t ram[4096];              // 4 KiB of RAM
     uint16_t stack[16];             // 16 Byte stack for function calling
     bool *display;                  // Pointer to display data
+    bool keypad[16];                // Hexadecimal keypad 0x0-0xF
     uint8_t *textSprites[16][5];    // Pointer to default text sprites
+    char *romName;                  // Name of ROM currently loaded
+    char *romPath;                  // Path to ROM currently loaded
+
+    uint16_t entrypoint;      // Entrypoint for chip-8 programs
 } chip8_t;
 
 #endif
