@@ -33,12 +33,12 @@ typedef enum {
 
 // CHIP-8 Machine object
 typedef struct {
-    emulator_state_t state;
-
-    uint8_t ram[4096];
-    bool *display;          // Pointer to display data
-
-    Registers_t reg;
+    emulator_state_t state;         // Current state of Chip-8
+    Registers_t reg;                // Chip-8 Registers
+    uint8_t ram[4096];              // 4 KiB of RAM
+    uint16_t stack[16];             // 16 Byte stack for function calling
+    bool *display;                  // Pointer to display data
+    uint8_t *textSprites[16][5];    // Pointer to default text sprites
 } chip8_t;
 
 #endif
