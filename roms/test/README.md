@@ -43,3 +43,7 @@
 - Could not find actual source of these files. Linked to the website that they were found.
 - ROM name: BC_test.ch8
 - License unknown
+
+[kripod/chip8-roms](https://github.com/kripod/chip8-roms)
+- ROM name: IBM Logo.ch8
+- License unknown/NA
