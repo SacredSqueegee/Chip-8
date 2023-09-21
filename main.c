@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
         // TODO:
         // Check chip-8 state
         // if paused: skip/do something else???...
+        // TODO: need to pause audio during this as well...
         if (chip8.state == PAUSED) continue;
 
         // Emulate Chip-8 instructions
