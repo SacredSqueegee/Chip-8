@@ -25,8 +25,9 @@ int main(int argc, char *argv[])
         .window_height = DISPLAY_HEIGHT,
         .fg_color.value = 0xFFFFFFFF,
         .bg_color.value = 0x000000FF,
-        .config_path = "./configs/",
         .rom_path = "./roms/",
+        .config_path = "./configs/",
+        .text_rom_name = "textSprites.bin",
         .entrypoint = 0x200
     };
 
@@ -218,8 +219,23 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
 
     // Load Font
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+    // allocate +1 more memory for \0; calloc zeros memory so no need to add \0 to end
+    int textRomPathLen = strlen(config.text_rom_name) + strlen(config.config_path) + 1;
+    char *textRomPath = (char*) calloc(textRomPathLen, sizeof(char));
+    if(textRomPath == NULL)
+        return Log_Err("Unable to allocate dynamic memory for Chip-8 textRomPath");
+    Log_Info("Allocated %i [bytes] of textRomPath memory", textRomPathLen*sizeof(char));
 
+    strcpy(textRomPath, config.config_path);
+    strcat(textRomPath, config.text_rom_name);
 
+    int num_elements = sizeof(chip8->textSprites) / sizeof(chip8->textSprites[0][0]);
+    if (load_rom(textRomPath, chip8->textSprites, sizeof(uint8_t), num_elements) != 0)
+        return 1;
+    Log_Info("Loaded text sprite data file '%s', from '%s', into Chip-8 textSprites ROM", config.text_rom_name, textRomPath);
+
+    free(textRomPath);
+    Log_Info("Freed Chip-8 textRomPath memory");
 
     // Load Rom to Chip-8 Memory
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -236,11 +252,9 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
     strcpy(chip8->romPath, config.rom_path);
     strcat(chip8->romPath, chip8->romName);
 
-
     // Set entrypoint from config data
     chip8->entrypoint = config.entrypoint;
     Log_Info("Setting entrypoint to %#03x", chip8->entrypoint);
-
 
     // Read ROM file into RAM
     void *ramEntry_ptr = &(chip8->ram[chip8->entrypoint]);

@@ -33,9 +33,11 @@ typedef struct
         
     }bg_color;
 
-    char *config_path;
     char *rom_path;
 
+    char *config_path;
+    const char *text_rom_name;
+    
     const uint16_t entrypoint;
 
 } config_t;

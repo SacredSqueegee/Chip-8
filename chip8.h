@@ -47,6 +47,6 @@ typedef struct {
 } chip8_t;
 
 // Chip-8 Utility functions
-int load_rom(char *romPath, void *dest, int dw_dest, int sz_dest);
+int load_rom(char *romPath, void *dest, int sz_inp, int num_elements);
 
 #endif
