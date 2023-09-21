@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
-#include "chip8.h"
+#include "chip8.h"'
 
 // Configuration Specification Structure
 typedef struct
@@ -17,18 +17,26 @@ typedef struct
     union
     {
         uint32_t value;
-        struct
+        struct __attribute__((packed))
         {
-            uint8_t a, b, g, r;     // reverse order b/c of endianness
+            // reverse order b/c of endianness
+            uint8_t a: 8;
+            uint8_t b: 8;
+            uint8_t g: 8;
+            uint8_t r: 8;
         };
         
     }fg_color;
     union
     {
         uint32_t value;
-        struct
+        struct __attribute__((packed))
         {
-            uint8_t a, b, g, r;     // reverse orcer b/c of endianness
+            // reverse order b/c of endianness
+            uint8_t a: 8;
+            uint8_t b: 8;
+            uint8_t g: 8;
+            uint8_t r: 8;
         };
         
     }bg_color;
