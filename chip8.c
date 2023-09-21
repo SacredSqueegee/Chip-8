@@ -31,6 +31,7 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
     const long rom_size = ftell(fp);
     rewind(fp);
 
+    // Error if dest_size is too small to fit ROM 
     if (rom_size > dest_size)
         return Log_Err("Destination size [%i Bytes] is smaller than input ROM size [%i Bytes]", dest_size, rom_size);
 
