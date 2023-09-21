@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     // Get loop start time
 
     // Main Loop
-    while (chip8.state == RUNNING)
+    while (chip8.state != QUIT)
     {
         // Handle User Input
         handle_input(sdl, config, &chip8);
@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
         // TODO:
         // Check chip-8 state
         // if paused: skip/do something else???...
+        if (chip8.state == PAUSED) continue;
 
         // Emulate Chip-8 instructions
         
@@ -183,6 +184,20 @@ void handle_input(sdl_t sdl, const config_t config, chip8_t *chip8)
                 {
                     case SDLK_ESCAPE:
                         chip8->state = QUIT;
+                        break;
+                    
+                    case SDLK_SPACE:
+                        // Disable toggling when key held
+                        if (e.key.repeat == 1) continue;
+
+                        if (chip8->state == RUNNING)
+                        {
+                            chip8->state = PAUSED;
+                            Log_Info("Chip-8 is now: PAUSED");
+                            break;
+                        }
+                        chip8->state = RUNNING;
+                        Log_Info("Chip-8 is now: RUNNING");
                         break;
                     
                     default:
