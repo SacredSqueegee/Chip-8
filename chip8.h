@@ -49,40 +49,6 @@ typedef struct {
 
 // TODO: verify that bitfields are indeed packed by compiler
 // TODO: correct for any endianness issues between big/little
-// probably only works on gcc and clang???
-// typedef struct __attribute__((__packed__))
-// {
-//     union
-//     {
-//         // NOTE: will utilize htons() to convert from machine endianess to Big
-//         // endian so that structure works properly
-
-//         // Whole 2-bytes of the instruction
-//         uint16_t opcode;
-
-//         // 12-bit address value in the instruction
-//         struct
-//         {
-//             uint16_t NNN: 12;
-//         };
-
-//         // N, X, Y values contained in lower 12-bits of the instruction
-//         struct
-//         {
-//             uint8_t N: 4;   // lowest 4-bits of instruction's low-byte
-//             uint8_t Y: 4;   // upper 4-bits of instruction's low-byte
-//             uint8_t X: 4;   // lowest 4-bits of instruction's high-byte
-//         };
-
-//         // KK value contained in the low byte of the instruction
-//         struct
-//         {
-//             uint8_t KK: 8;  // lowest 8-bits of the instruction, the instruction's whole low-byte
-//         };
-//     };
-    
-// } instruction_t;
-
 typedef union __attribute__((__packed__))
 {
     // NOTE: will utilize htons() to convert from machine endianess to Big
