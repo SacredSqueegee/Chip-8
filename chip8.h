@@ -26,9 +26,10 @@ typedef struct {
 
 // Emulator states
 typedef enum {
-    QUIT = 0,
-    RUNNING,
-    PAUSED
+    QUIT = 0,       // Ready to quit emulation
+    RUNNING,        // Chip-8 is running in real time
+    STEPPING,       // Chip-8 is in step-mode, pauses after each instruction
+    PAUSED          // chip-8 is paused and doing nothing
 } emulator_state_t;
 
 // CHIP-8 Machine object
@@ -45,6 +46,71 @@ typedef struct {
 
     uint16_t entrypoint;      // Entrypoint for chip-8 programs
 } chip8_t;
+
+// TODO: verify that bitfields are indeed packed by compiler
+// TODO: correct for any endianness issues between big/little
+// probably only works on gcc and clang???
+// typedef struct __attribute__((__packed__))
+// {
+//     union
+//     {
+//         // NOTE: will utilize htons() to convert from machine endianess to Big
+//         // endian so that structure works properly
+
+//         // Whole 2-bytes of the instruction
+//         uint16_t opcode;
+
+//         // 12-bit address value in the instruction
+//         struct
+//         {
+//             uint16_t NNN: 12;
+//         };
+
+//         // N, X, Y values contained in lower 12-bits of the instruction
+//         struct
+//         {
+//             uint8_t N: 4;   // lowest 4-bits of instruction's low-byte
+//             uint8_t Y: 4;   // upper 4-bits of instruction's low-byte
+//             uint8_t X: 4;   // lowest 4-bits of instruction's high-byte
+//         };
+
+//         // KK value contained in the low byte of the instruction
+//         struct
+//         {
+//             uint8_t KK: 8;  // lowest 8-bits of the instruction, the instruction's whole low-byte
+//         };
+//     };
+    
+// } instruction_t;
+
+typedef union __attribute__((__packed__))
+{
+    // NOTE: will utilize htons() to convert from machine endianess to Big
+    // endian so that structure works properly
+
+    // Whole 2-bytes of the instruction
+    uint16_t opcode;
+
+    // 12-bit address value in the instruction
+    struct
+    {
+        uint16_t NNN: 12;
+    };
+
+    // N, X, Y values contained in lower 12-bits of the instruction
+    struct
+    {
+        uint8_t N: 4;   // lowest 4-bits of instruction's low-byte
+        uint8_t Y: 4;   // upper 4-bits of instruction's low-byte
+        uint8_t X: 4;   // lowest 4-bits of instruction's high-byte
+    };
+
+    // KK value contained in the low byte of the instruction
+    struct
+    {
+        uint8_t KK: 8;  // lowest 8-bits of the instruction, the instruction's whole low-byte
+    };
+} instruction_t;
 
 // Chip-8 Utility functions
 int load_rom(char *romPath, void *dest, int sz_inp, int num_elements);

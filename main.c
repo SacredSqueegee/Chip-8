@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
 
         // Emulate Chip-8 instructions
         emulate_instruction(&chip8);
+        // chip8.state = QUIT;
         
         // Update window with changes
         update_screen(sdl, config);       

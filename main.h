@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
-#include "chip8.h"'
+#include "chip8.h"
 
 // Configuration Specification Structure
 typedef struct

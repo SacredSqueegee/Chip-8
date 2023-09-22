@@ -49,5 +49,30 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
 
 void emulate_instruction(chip8_t *chip8)
 {
+    // Chip-8 Instruction Reference
+    // =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+    // Instruction word size:   2-bytes
+    // Instructions stored as:  Big-Endian format
+    // Instructions first bytes stored at EVEN address
+    //      -> if program includes sprite data it should be padded
+    //         so that any instructions following it will be 
+    //         properly aligned in RAM
+    //
+    // Variables used in instruction comments:
+    //      - nnn || addr   -> a 12-bit value, lowest 12 bits of the instruction
+    //      - n || nibble   -> a 4-bit value, lowest 4 bits of the instruction
+    //      - x             -> a 4-bit value, lower 4 bits of the high byte of the instruction
+    //      - y             -> a 4-bit value, upper 4 bits of the low byte of the instruction
+    //      - kk || byte    -> 8-bit value, the lowest 8 bits of the instruction
+    
+    // Load instruction from RAM
+    instruction_t instruction = {chip8->ram[chip8->reg.PC] << 8 | chip8->ram[++chip8->reg.PC]};
+    chip8->reg.PC++;
+    Log_Info("Instruction opcode: 0x%04x", instruction.opcode);
+    Log_Info("Instruction lower byte: 0x%02x", instruction.KK);
+    Log_Info("Instruction lower 12 bits: 0x%03x", instruction.NNN);
 
+    
+
+    chip8->state = QUIT;
 }
