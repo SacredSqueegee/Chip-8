@@ -98,6 +98,13 @@ void emulate_instruction(chip8_t *chip8)
             // 0x1nnn -> JP addr - jump to location nnn
             chip8->reg.PC = chip8->instruction.NNN;
             break;
+
+        case 0x2:
+            // 0x2nnn -> CALL addr - call subroutine at nnn
+            chip8->reg.SP++;
+            chip8->stack[chip8->reg.SP] = chip8->reg.PC;
+            chip8->reg.PC = chip8->instruction.NNN;
+            break;
         
         default:
             printf("\n");
