@@ -88,8 +88,6 @@ void update_screen(sdl_t sdl, const config_t config, bool *display)
 
         // Draw black rectangle
         SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
-        // SDL_FRect rect = {0*config.window_scale, 0*config.window_scale, 1*config.window_scale, 1*config.window_scale};
-        // SDL_RenderFillRectF(sdl.renderer, &rect);
 
         // Draw checkerboard pattern
         for(uint32_t i=0; i<config.window_height; i++)
@@ -104,7 +102,6 @@ void update_screen(sdl_t sdl, const config_t config, bool *display)
                     *(display + index) = false;
                     continue;
                 }
-
                 *(display + index) = true;
             }
         }
