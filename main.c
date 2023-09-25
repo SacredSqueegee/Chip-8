@@ -300,8 +300,9 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
 
     // Set chip-8 defaults
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    chip8->state = RUNNING;             // Default Chip-8 state to on/running
-    chip8->reg.PC = chip8->entrypoint;  // Default PC to RAM entrypoint
+    chip8->state = RUNNING;                         // Default Chip-8 state to on/running
+    memset(&chip8->reg, '\0', sizeof(Registers_t)); // Zeroize Chip-8 registers
+    chip8->reg.PC = chip8->entrypoint;              // Default PC to RAM entrypoint
 
     return 0;       // success
 }
