@@ -40,6 +40,9 @@
 		"hidefiles.selectedProfile": "Default",
 		"files.associations": {
 			"stdint.h": "c"
-		}
+		},
+		"cSpell.words": [
+			"Zeroize"
+		]
 	}
 }
