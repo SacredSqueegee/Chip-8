@@ -73,7 +73,42 @@ void emulate_instruction(chip8_t *chip8)
     // Log_Info("Instruction lower byte: 0x%02x", instruction.KK);
     // Log_Info("Instruction lower 12 bits: 0x%03x", instruction.NNN);
 
-    
+    // Switch off of upper nibble of instruction
+    switch ((chip8->instruction.opcode >> 12) & 0x0F)
+    {
+        case 0x0:
+            // 0x0nnn -> SYS addr - not implemented on newer machines
+            // 0x00E0 -> CLS - clear screen
+            if (chip8->instruction.KK == 0xE0)
+            {
+                memset(chip8->display, '\0', chip8->displaySize);
+                break;
+            }
+            // 0x00EE -> RET - return from subroutine
+            if (chip8->instruction.KK == 0xEE)
+            {
+                chip8->reg.PC = chip8->stack[chip8->reg.SP];
+                chip8->reg.SP--;
+                break;
+            }
+            bad_instruction(chip8->instruction.opcode);
+            break;
+        
+        case 0x1:
+            // 0x1nnn -> JP addr - jump to location nnn
+            chip8->reg.PC = chip8->instruction.NNN;
+            break;
+        
+        default:
+            printf("\n");
+            bad_instruction(chip8->instruction.opcode);
+            break;
+    }
 
-    // chip8->state = QUIT;
+    chip8->state = QUIT;
+}
+
+void bad_instruction(uint16_t opcode)
+{
+    Log_Warn("Unimplemented instruction: 0x%04X", opcode);
 }

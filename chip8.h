@@ -66,6 +66,7 @@ typedef struct {
     Registers_t reg;                // Chip-8 Registers
     uint8_t ram[4096];              // 4 KiB of RAM
     uint16_t stack[16];             // 16 Byte stack for function calling
+    uint32_t displaySize;           // Size of the memory of the display
     bool *display;                  // Pointer to display data
     bool keypad[16];                // Hexadecimal keypad 0x0-0xF
     uint8_t *textSprites[16][5];    // Pointer to default text sprites
@@ -79,5 +80,6 @@ typedef struct {
 // Chip-8 Utility functions
 int load_rom(char *romPath, void *dest, int sz_inp, int num_elements);
 void emulate_instruction(chip8_t *chip8);
+void bad_instruction(uint16_t opcode);
 
 #endif

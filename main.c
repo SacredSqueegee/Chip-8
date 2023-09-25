@@ -84,27 +84,27 @@ int main(int argc, char *argv[])
 
 void update_screen(sdl_t sdl, const config_t config, bool *display)
 {
-        clear_screen(sdl, config);
+        sdl_clear_screen(sdl, config);
 
-        // Draw black rectangle
-        SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
+        // // Draw black rectangle
+        // SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
 
-        // Draw checkerboard pattern
-        for(uint32_t i=0; i<config.window_height; i++)
-        {
-            for(uint32_t j=0; j<config.window_width; j++)
-            {
-                // Calc. current index in our 2D display array
-                int index = (i*config.window_width) + j;
+        // // Draw checkerboard pattern
+        // for(uint32_t i=0; i<config.window_height; i++)
+        // {
+        //     for(uint32_t j=0; j<config.window_width; j++)
+        //     {
+        //         // Calc. current index in our 2D display array
+        //         int index = (i*config.window_width) + j;
 
-                if((j%2==0 && i%2==1) || (j%2==1 && i%2==0))
-                {
-                    *(display + index) = false;
-                    continue;
-                }
-                *(display + index) = true;
-            }
-        }
+        //         if((j%2==0 && i%2==1) || (j%2==1 && i%2==0))
+        //         {
+        //             *(display + index) = false;
+        //             continue;
+        //         }
+        //         *(display + index) = true;
+        //     }
+        // }
 
         // Draw display
         for(uint32_t i=0; i<config.window_height; i++)
@@ -126,7 +126,7 @@ void update_screen(sdl_t sdl, const config_t config, bool *display)
         SDL_RenderPresent(sdl.renderer);
 }
 
-void clear_screen(sdl_t sdl, const config_t config)
+void sdl_clear_screen(sdl_t sdl, const config_t config)
 {
     // Clear screen to background color
     SDL_SetRenderDrawColor(sdl.renderer, config.bg_color.r, config.bg_color.g, config.bg_color.b, config.bg_color.a);
@@ -177,7 +177,7 @@ int initialize_sdl(sdl_t *sdl, const config_t config)
 void cleanup_sdl(sdl_t *sdl)
 {
     printf("\n");
-    Log_Warn("Shutting down app...");
+    Log_Warn("Shutting down SDL...");
     SDL_DestroyRenderer(sdl->renderer);
     Log_Info("Destroyed Renderer");
     SDL_DestroyWindow(sdl->window);
@@ -244,12 +244,12 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
 
     // Allocate memory for display data
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    int displaySize = (config.window_height*config.window_width);
-    chip8->display = (bool*) calloc(displaySize, sizeof(bool));
+    chip8->displaySize = (config.window_height*config.window_width);
+    chip8->display = (bool*) calloc(chip8->displaySize, sizeof(bool));
     if(chip8->display == NULL)
         return Log_Err("Unable to allocate dynamic memory for Chip-8 display");
     
-    Log_Info("Allocated %i [bytes] of display memory", displaySize*sizeof(bool));
+    Log_Info("Allocated %i [bytes] of display memory", chip8->displaySize*sizeof(bool));
     printf("\t\\_ For display of %ix%i\n", config.window_width, config.window_height);
 
     // Load Font
@@ -302,7 +302,6 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
     chip8->state = RUNNING;             // Default Chip-8 state to on/running
     chip8->reg.PC = chip8->entrypoint;  // Default PC to RAM entrypoint
-
 
     return 0;       // success
 }
