@@ -65,14 +65,15 @@ void emulate_instruction(chip8_t *chip8)
     //      - y             -> a 4-bit value, upper 4 bits of the low byte of the instruction
     //      - kk || byte    -> 8-bit value, the lowest 8 bits of the instruction
     
-    // Load instruction from RAM
-    chip8->instruction.opcode = chip8->ram[chip8->reg.PC] << 8 | chip8->ram[++chip8->reg.PC];
-    chip8->reg.PC++;
+    // FIXME: Make below work on big/little endian machines
+    // Load instruction from little endian host machine RAM into big endian Chip-8 RAM
+    chip8->instruction.opcode = chip8->ram[chip8->reg.PC] << 8 | chip8->ram[chip8->reg.PC + 1];
+    chip8->reg.PC += 2;
     // Log_Info("Instruction opcode: 0x%04x", instruction.opcode);
     // Log_Info("Instruction lower byte: 0x%02x", instruction.KK);
     // Log_Info("Instruction lower 12 bits: 0x%03x", instruction.NNN);
 
     
 
-    // chip8->state = QUIT;
+    chip8->state = QUIT;
 }
