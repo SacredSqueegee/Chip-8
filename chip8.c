@@ -66,13 +66,13 @@ void emulate_instruction(chip8_t *chip8)
     //      - kk || byte    -> 8-bit value, the lowest 8 bits of the instruction
     
     // Load instruction from RAM
-    instruction_t instruction = {chip8->ram[chip8->reg.PC] << 8 | chip8->ram[++chip8->reg.PC]};
+    chip8->instruction.opcode = chip8->ram[chip8->reg.PC] << 8 | chip8->ram[++chip8->reg.PC];
     chip8->reg.PC++;
-    Log_Info("Instruction opcode: 0x%04x", instruction.opcode);
-    Log_Info("Instruction lower byte: 0x%02x", instruction.KK);
-    Log_Info("Instruction lower 12 bits: 0x%03x", instruction.NNN);
+    // Log_Info("Instruction opcode: 0x%04x", instruction.opcode);
+    // Log_Info("Instruction lower byte: 0x%02x", instruction.KK);
+    // Log_Info("Instruction lower 12 bits: 0x%03x", instruction.NNN);
 
     
 
-    chip8->state = QUIT;
+    // chip8->state = QUIT;
 }

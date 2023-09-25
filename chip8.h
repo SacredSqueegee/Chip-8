@@ -32,28 +32,10 @@ typedef enum {
     PAUSED          // chip-8 is paused and doing nothing
 } emulator_state_t;
 
-// CHIP-8 Machine object
-typedef struct {
-    emulator_state_t state;         // Current state of Chip-8
-    Registers_t reg;                // Chip-8 Registers
-    uint8_t ram[4096];              // 4 KiB of RAM
-    uint16_t stack[16];             // 16 Byte stack for function calling
-    bool *display;                  // Pointer to display data
-    bool keypad[16];                // Hexadecimal keypad 0x0-0xF
-    uint8_t *textSprites[16][5];    // Pointer to default text sprites
-    char *romName;                  // Name of ROM currently loaded
-    char *romPath;                  // Path to ROM currently loaded
-
-    uint16_t entrypoint;      // Entrypoint for chip-8 programs
-} chip8_t;
-
 // TODO: verify that bitfields are indeed packed by compiler
 // TODO: correct for any endianness issues between big/little
 typedef union __attribute__((__packed__))
 {
-    // NOTE: will utilize htons() to convert from machine endianess to Big
-    // endian so that structure works properly
-
     // Whole 2-bytes of the instruction
     uint16_t opcode;
 
@@ -77,6 +59,22 @@ typedef union __attribute__((__packed__))
         uint8_t KK: 8;  // lowest 8-bits of the instruction, the instruction's whole low-byte
     };
 } instruction_t;
+
+// CHIP-8 Machine object
+typedef struct {
+    emulator_state_t state;         // Current state of Chip-8
+    Registers_t reg;                // Chip-8 Registers
+    uint8_t ram[4096];              // 4 KiB of RAM
+    uint16_t stack[16];             // 16 Byte stack for function calling
+    bool *display;                  // Pointer to display data
+    bool keypad[16];                // Hexadecimal keypad 0x0-0xF
+    uint8_t *textSprites[16][5];    // Pointer to default text sprites
+    char *romName;                  // Name of ROM currently loaded
+    char *romPath;                  // Path to ROM currently loaded
+
+    uint16_t entrypoint;            // Entrypoint for chip-8 programs
+    instruction_t instruction;      // Currently executing instruction
+} chip8_t;
 
 // Chip-8 Utility functions
 int load_rom(char *romPath, void *dest, int sz_inp, int num_elements);
