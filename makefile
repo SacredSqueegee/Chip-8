@@ -14,6 +14,7 @@ LINK_FLAGS = -lSDL2
 # LINK_FLAGS = -lSDL2
 
 APP = app.out
+ROM_NAME = test/my_rom.ch8
 
 SRC_FILES = main.c chip8.c ./helpers/logging.c
 OBJ_FILES = main.o chip8.o logging.o
@@ -35,7 +36,7 @@ logging.o: ./helpers/logging.c ./helpers/logging.h
 .PHONY: run
 run: ${APP}
 	@echo Running ${APP} ...
-	@./${APP} && echo "${APP}" exited with: $$?
+	@./${APP} ${ROM_NAME} && echo "${APP}" exited with: $$?
 
 
 .PHONY: clean

@@ -117,5 +117,6 @@ void emulate_instruction(chip8_t *chip8)
 
 void bad_instruction(uint16_t opcode)
 {
+    printf("\n");
     Log_Warn("Unimplemented instruction: 0x%04X", opcode);
 }
