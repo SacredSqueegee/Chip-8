@@ -66,10 +66,9 @@ int main(int argc, char *argv[])
 
         // Emulate Chip-8 instructions
         emulate_instruction(&chip8);
-        // chip8.state = QUIT;
         
         // Update window with changes
-        update_screen(sdl, config);       
+        update_screen(sdl, config, chip8.display);
 
         // TODO:
         // Get elapsed time and
@@ -83,7 +82,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void update_screen(sdl_t sdl, const config_t config)
+void update_screen(sdl_t sdl, const config_t config, bool *display)
 {
         clear_screen(sdl, config);
 
@@ -97,12 +96,32 @@ void update_screen(sdl_t sdl, const config_t config)
         {
             for(uint32_t j=0; j<config.window_width; j++)
             {
-                if(j%2==0 && i%2==1)
+                // Calc. current index in our 2D display array
+                int index = (i*config.window_width) + j;
+
+                if((j%2==0 && i%2==1) || (j%2==1 && i%2==0))
+                {
+                    *(display + index) = false;
                     continue;
-                if(j%2==1 && i%2==0)
-                    continue;
-                SDL_FRect rect = {j*config.window_scale, i*config.window_scale, 1*config.window_scale, 1*config.window_scale};
-                SDL_RenderFillRectF(sdl.renderer, &rect);
+                }
+
+                *(display + index) = true;
+            }
+        }
+
+        // Draw display
+        for(uint32_t i=0; i<config.window_height; i++)
+        {
+            for(uint32_t j=0; j<config.window_width; j++)
+            {
+                // Draw pixel if it's on
+                int index = (i*config.window_width) + j;
+                // Log_Info("i: %i, j: %i, index: %i, value: %i", i, j, index, *(display + index));
+                if (*(display + index) == true)
+                {
+                    SDL_FRect rect = {j*config.window_scale, i*config.window_scale, 1*config.window_scale, 1*config.window_scale};
+                    SDL_RenderFillRectF(sdl.renderer, &rect); 
+                }
             }
         }
 

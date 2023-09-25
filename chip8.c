@@ -75,5 +75,5 @@ void emulate_instruction(chip8_t *chip8)
 
     
 
-    chip8->state = QUIT;
+    // chip8->state = QUIT;
 }
