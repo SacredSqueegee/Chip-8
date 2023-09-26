@@ -89,7 +89,7 @@ typedef struct {
 // Chip-8 Utility functions
 int load_rom(char *romPath, void *dest, int sz_inp, int num_elements);
 int emulate_instruction(chip8_t *chip8);
-void bad_instruction(uint16_t opcode);
+void bad_instruction(uint16_t address, uint16_t opcode);
 int validate_PC(chip8_t chip8);
 
 #endif

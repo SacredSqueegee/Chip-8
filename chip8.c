@@ -47,13 +47,6 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
 }
 
 
- // Enable/Disable message logging
-#define INSTRUCTION_DEBUG
-#ifndef INSTRUCTION_DEBUG
-#   define Log_Info(...)
-#else
-#   define Log_Info(...) Log_Info("Executing instruction: 0x%04X", chip8->instruction.opcode); printf("\t\\_ "); printf(__VA_ARGS__); printf("\n");
-#endif
 int emulate_instruction(chip8_t *chip8)
 {
     // Chip-8 Instruction Reference
@@ -78,6 +71,18 @@ int emulate_instruction(chip8_t *chip8)
         Log_Err("Fatal error, shutting down...");
         return 1;
     }
+
+    // need to save current address as we replace the Log_Info() function after PCs modification
+    // during some instructions
+    uint16_t currentAddress = chip8->reg.PC;
+
+    // Enable/Disable message logging
+    #define INSTRUCTION_DEBUG
+    #ifndef INSTRUCTION_DEBUG
+    #   define Log_Info(...)
+    #else
+    #   define Log_Info(...) Log_Info("Address: 0x%04X, Opcode: 0x%04X", currentAddress, chip8->instruction.opcode); printf("\t\\_ "); printf(__VA_ARGS__); printf("\n");
+    #endif
 
     // FIXME: Make below work on big/little endian machines
     // Load instruction from little endian host machine RAM into big endian Chip-8 RAM
@@ -104,7 +109,7 @@ int emulate_instruction(chip8_t *chip8)
                 chip8->reg.SP--;
                 break;
             }
-            bad_instruction(chip8->instruction.opcode);
+            bad_instruction(currentAddress, chip8->instruction.opcode);
             break;
         
         case 0x1:
@@ -122,10 +127,11 @@ int emulate_instruction(chip8_t *chip8)
             break;
         
         case 0x3:
+
             break;
         
         default:
-            bad_instruction(chip8->instruction.opcode);
+            bad_instruction(currentAddress, chip8->instruction.opcode);
             break;
     }
 
@@ -138,9 +144,9 @@ int emulate_instruction(chip8_t *chip8)
 #endif
 
 
-void bad_instruction(uint16_t opcode)
+void bad_instruction(uint16_t address, uint16_t opcode)
 {
-    Log_Warn("Unimplemented instruction: 0x%04X", opcode);
+    Log_Warn("Address: 0x%04X, Unimplemented instruction: 0x%04X", address, opcode);
 }
 
 
