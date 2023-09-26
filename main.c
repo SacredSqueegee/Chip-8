@@ -65,7 +65,12 @@ int main(int argc, char *argv[])
         if (chip8.state == PAUSED) continue;
 
         // Emulate Chip-8 instructions
-        emulate_instruction(&chip8);
+        if (emulate_instruction(&chip8) != 0)
+        {
+            // on fatal instruction emulation error shutdown
+            chip8.state = QUIT;
+            continue;
+        }
         
         // Update window with changes
         update_screen(sdl, config, chip8.display);

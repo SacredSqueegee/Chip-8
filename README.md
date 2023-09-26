@@ -82,5 +82,6 @@ Notes about the project so far:
 - Better logging features
     - more colors
     - nesting support
+    - add debug levels so that only levels >= desired debug level will show
     - etc
 - Custom SDL2 wrapper specifically for emulators

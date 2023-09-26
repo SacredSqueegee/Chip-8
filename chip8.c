@@ -54,7 +54,7 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
 #else
 #   define Log_Info(...) printf("\n"); Log_Info("Executing instruction: 0x%04X", chip8->instruction.opcode); printf("\t\\_ "); printf(__VA_ARGS__); printf("\n");
 #endif
-void emulate_instruction(chip8_t *chip8)
+int emulate_instruction(chip8_t *chip8)
 {
     // Chip-8 Instruction Reference
     // =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
@@ -72,13 +72,17 @@ void emulate_instruction(chip8_t *chip8)
     //      - y             -> a 4-bit value, upper 4 bits of the low byte of the instruction
     //      - kk || byte    -> 8-bit value, the lowest 8 bits of the instruction
 
+    // Make sure PC is set to valid address for instruction execution
+    if (validate_PC(*chip8) != 0)
+    {
+        Log_Err("Fatal error, shutting down...");
+        return 1;
+    }
+
     // FIXME: Make below work on big/little endian machines
     // Load instruction from little endian host machine RAM into big endian Chip-8 RAM
     chip8->instruction.opcode = chip8->ram[chip8->reg.PC] << 8 | chip8->ram[chip8->reg.PC + 1];
     chip8->reg.PC += 2;
-    // Log_Info("Instruction opcode: 0x%04x", instruction.opcode);
-    // Log_Info("Instruction lower byte: 0x%02x", instruction.KK);
-    // Log_Info("Instruction lower 12 bits: 0x%03x", instruction.NNN);
 
     // Switch off of upper nibble of instruction
     switch ((chip8->instruction.opcode >> 12) & 0x0F)
@@ -117,13 +121,16 @@ void emulate_instruction(chip8_t *chip8)
             Log_Info("Calling function at: 0x%04X, Pushed address: 0x%04X on stack[0x%01X]", chip8->reg.PC, chip8->stack[chip8->reg.SP], chip8->reg.SP);
             break;
         
+        case 0x3:
+            break;
+        
         default:
             printf("\n");
             bad_instruction(chip8->instruction.opcode);
             break;
     }
 
-    chip8->state = QUIT;
+    // chip8->state = QUIT;
 }
 // Re-enable message logging
 #ifndef INSTRUCTION_DEBUG
@@ -135,4 +142,23 @@ void bad_instruction(uint16_t opcode)
 {
     printf("\n");
     Log_Warn("Unimplemented instruction: 0x%04X", opcode);
+}
+
+
+// Validate that we are executing a correct address in RAM
+int validate_PC(chip8_t chip8)
+{
+    // Make sure we don't execute outside RAM
+    // we do >= of the sizeof(ram)-1 as we don't want to execute if PC >= 4095
+    // 4095 is technically a valid RAM address but instructions are aligned to
+    // the even address thus executing from the last odd address is not allowed.
+    // So, in this case addresses <= 4094 are valid
+    if (chip8.reg.PC >= sizeof(chip8.ram) - 1)
+        return Log_Err("Chip-8 is trying to execute invalid RAM address: 0x%04X", chip8.reg.PC);
+
+    // Make sure PC is even, as instructions must be aligned to the even address
+    if (chip8.reg.PC % 2 == 1)
+        return Log_Err("Error, Chip-8 trying to execute non-even RAM address: 0x%04X", chip8.reg.PC);
+    
+    return 0;
 }
