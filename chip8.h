@@ -5,12 +5,21 @@
 #include <stdbool.h>
 
 typedef struct {
-    // General Purpose Registers, 8-bit registers
-    uint8_t V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE;
+    // General Purpose Registers
+    union __attribute__((__packed__))
+    {
+        uint8_t Vx[16];
+        struct
+        {
+            // General Purpose Registers, 8-bit registers
+            uint8_t V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE;
+            // Flag Register, 8-bit - can be general purpose though, but not recommended for GP use
+            uint8_t VF;
+        };
+    };
+    
     // General purpose register for storing memory addresses, 16-bit register
-    uint16_t VI;
-    // Flag Register, 8-bit - can be general purpose though, but not recommended for GP use
-    uint8_t VF;
+    uint16_t I;
 
     // Special Purpose registers, 8-bit registers
     // DT -> Delay Timer register

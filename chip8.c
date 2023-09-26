@@ -47,6 +47,13 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
 }
 
 
+ // Enable/Disable message logging
+#define INSTRUCTION_DEBUG
+#ifndef INSTRUCTION_DEBUG
+#   define Log_Info(...)
+#else
+#   define Log_Info(...) printf("\nExecuting instruction: 0x%04X\n\t", chip8->instruction.opcode); Log_Info(#__VA_ARGS__)
+#endif
 void emulate_instruction(chip8_t *chip8)
 {
     // Chip-8 Instruction Reference
@@ -64,7 +71,7 @@ void emulate_instruction(chip8_t *chip8)
     //      - x             -> a 4-bit value, lower 4 bits of the high byte of the instruction
     //      - y             -> a 4-bit value, upper 4 bits of the low byte of the instruction
     //      - kk || byte    -> 8-bit value, the lowest 8 bits of the instruction
-    
+
     // FIXME: Make below work on big/little endian machines
     // Load instruction from little endian host machine RAM into big endian Chip-8 RAM
     chip8->instruction.opcode = chip8->ram[chip8->reg.PC] << 8 | chip8->ram[chip8->reg.PC + 1];
@@ -81,6 +88,7 @@ void emulate_instruction(chip8_t *chip8)
             // 0x00E0 -> CLS - clear screen
             if (chip8->instruction.KK == 0xE0)
             {
+                Log_Info("Clearing screen");
                 memset(chip8->display, '\0', chip8->displaySize);
                 break;
             }
@@ -88,6 +96,7 @@ void emulate_instruction(chip8_t *chip8)
             if (chip8->instruction.KK == 0xEE)
             {
                 chip8->reg.PC = chip8->stack[chip8->reg.SP];
+                Log_Info("Return to address: 0x%04X", chip8->reg.PC);
                 chip8->reg.SP--;
                 break;
             }
@@ -97,6 +106,7 @@ void emulate_instruction(chip8_t *chip8)
         case 0x1:
             // 0x1nnn -> JP addr - jump to location nnn
             chip8->reg.PC = chip8->instruction.NNN;
+            Log_Info("Jump to address: 0x%04X");
             break;
 
         case 0x2:
@@ -114,6 +124,11 @@ void emulate_instruction(chip8_t *chip8)
 
     chip8->state = QUIT;
 }
+// Re-enable message logging
+#ifndef INSTRUCTION_DEBUG
+#   undef Log_Info
+#endif
+
 
 void bad_instruction(uint16_t opcode)
 {
