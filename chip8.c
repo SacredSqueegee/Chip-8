@@ -52,7 +52,7 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
 #ifndef INSTRUCTION_DEBUG
 #   define Log_Info(...)
 #else
-#   define Log_Info(...) printf("\n"); Log_Info("Executing instruction: 0x%04X", chip8->instruction.opcode); printf("\t\\_ "); printf(__VA_ARGS__); printf("\n");
+#   define Log_Info(...) Log_Info("Executing instruction: 0x%04X", chip8->instruction.opcode); printf("\t\\_ "); printf(__VA_ARGS__); printf("\n");
 #endif
 int emulate_instruction(chip8_t *chip8)
 {
@@ -125,12 +125,12 @@ int emulate_instruction(chip8_t *chip8)
             break;
         
         default:
-            printf("\n");
             bad_instruction(chip8->instruction.opcode);
             break;
     }
 
     // chip8->state = QUIT;
+    return 0;
 }
 // Re-enable message logging
 #ifndef INSTRUCTION_DEBUG
@@ -140,7 +140,6 @@ int emulate_instruction(chip8_t *chip8)
 
 void bad_instruction(uint16_t opcode)
 {
-    printf("\n");
     Log_Warn("Unimplemented instruction: 0x%04X", opcode);
 }
 

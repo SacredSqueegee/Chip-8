@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
         // Check chip-8 state
         // if paused: skip/do something else???...
         // FIXME: need to pause audio during this as well...
-        if (chip8.state == PAUSED) continue;
+        if (chip8.state == PAUSED || chip8.state == QUIT) continue;
 
         // Emulate Chip-8 instructions
         if (emulate_instruction(&chip8) != 0)
@@ -301,7 +301,7 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
     int programSize = 4096-(chip8->entrypoint);
     if(load_rom(chip8->romPath, ramEntry_ptr, sizeof(uint8_t), programSize) != 0)
         return 1;
-    Log_Info("Loaded ROM: '%s', from: '%s', into RAM", chip8->romName, chip8->romPath);
+    Log_Info("Loaded ROM: '%s', from: '%s', into RAM\n", chip8->romName, chip8->romPath);
 
     // Set chip-8 defaults
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
