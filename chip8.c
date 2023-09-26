@@ -52,7 +52,7 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements)
 #ifndef INSTRUCTION_DEBUG
 #   define Log_Info(...)
 #else
-#   define Log_Info(...) printf("\nExecuting instruction: 0x%04X\n\t", chip8->instruction.opcode); Log_Info(#__VA_ARGS__)
+#   define Log_Info(...) printf("\n"); Log_Info("Executing instruction: 0x%04X", chip8->instruction.opcode); printf("\t\\_ "); printf(__VA_ARGS__); printf("\n");
 #endif
 void emulate_instruction(chip8_t *chip8)
 {
@@ -106,7 +106,7 @@ void emulate_instruction(chip8_t *chip8)
         case 0x1:
             // 0x1nnn -> JP addr - jump to location nnn
             chip8->reg.PC = chip8->instruction.NNN;
-            Log_Info("Jump to address: 0x%04X");
+            Log_Info("Jump to address: 0x%04X", chip8->reg.PC);
             break;
 
         case 0x2:
@@ -114,6 +114,7 @@ void emulate_instruction(chip8_t *chip8)
             chip8->reg.SP++;
             chip8->stack[chip8->reg.SP] = chip8->reg.PC;
             chip8->reg.PC = chip8->instruction.NNN;
+            Log_Info("Calling function at: 0x%04X, Pushed address: 0x%04X on stack[0x%01X]", chip8->reg.PC, chip8->stack[chip8->reg.SP], chip8->reg.SP);
             break;
         
         default:
