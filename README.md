@@ -19,10 +19,10 @@
 >           - 0x4xkk -> SE Vx, Vy
 >       - 0x5
 >           - 0x5xy0 -> SE Vx, Vy
->       - 0x6
->           - 0x6xkk -> LD Vx, byte
->       - 0x7
->           - 0x7xkk -> ADD Vx, byte
+>       - ~~0x6~~
+>           - ~~0x6xkk -> LD Vx, byte~~
+>       - ~~0x7~~
+>           - ~~0x7xkk -> ADD Vx, byte~~
 >       - 0x8
 >           - 0x8xy0 -> LD Vx, Vy
 >           - 0x8xy1 -> OR Vx, Vy
@@ -35,14 +35,14 @@
 >           - 0x8xyE -> SHL Vx {, Vy}
 >       - 0x9
 >           - 0x9xy0 -> SNE Vx, Vy
->       - 0xa
->           - 0xAnnn -> LD I, addr
+>       - ~~0xa~~
+>           - ~~0xAnnn -> LD I, addr~~
 >       - 0xb
 >           - 0xBnnn -> JP V0, addr
 >       - 0xc
 >           - 0xCxkk -> RND Vx, byte
->       - 0xd
->           - 0xDxyn -> DRW Vx, Vy, nibble
+>       - ~~0xd~~
+>           - ~~0xDxyn -> DRW Vx, Vy, nibble~~
 >       - 0xe
 >           - 0xEx9E -> SKP Vx
 >           - 0xExA1 -> SKNP Vx
