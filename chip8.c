@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 
@@ -81,7 +82,7 @@ int emulate_instruction(chip8_t *chip8)
     #ifndef INSTRUCTION_DEBUG
     #   define Log_Info(...)
     #else
-    #   define Log_Info(...) Log_Info("Address: 0x%04X, Opcode: 0x%04X", currentAddress, chip8->instruction.opcode); printf("\t\\_ "); printf(__VA_ARGS__); printf("\n");
+    #   define Log_Info(...) printf("\n"); Log_Info("Address: 0x%04X, Opcode: 0x%04X", currentAddress, chip8->instruction.opcode); printf("\t\\_ "); printf(__VA_ARGS__); printf("\n");
     #endif
 
     // FIXME: Make below work on big/little endian machines
@@ -126,9 +127,65 @@ int emulate_instruction(chip8_t *chip8)
             Log_Info("Calling function at: 0x%04X, Pushed address: 0x%04X on stack[0x%01X]", chip8->reg.PC, chip8->stack[chip8->reg.SP], chip8->reg.SP);
             break;
         
-        case 0x3:
-
+        case 0x6:
+            // 0x6xkk -> LD Vx, byte
+            chip8->reg.Vx[chip8->instruction.X] = chip8->instruction.KK;
+            Log_Info("Set V%01x to value: 0x%02X", chip8->instruction.X, chip8->instruction.KK);
             break;
+        
+        case 0xA:
+            // 0xAnnn -> LD I, addr
+            chip8->reg.I = chip8->instruction.NNN;
+            Log_Info("Set I to value: 0x%03X", chip8->reg.I);
+            break;
+        
+        case 0xD:
+        // 0xDxyn -> DRW Vx, Vy, nibble
+        {
+            // Validate size of sprite is <= 15
+            if (validate_sprite(*chip8) != 0)
+            {
+                Log_Err("Fatal error, shutting down...");
+                return 1;
+            }
+                        
+            // // Read in sprite data @ addr I of length n-bytes
+            // for (int i=0; i<chip8->instruction.N; i++)
+            // {
+            //     chip8->spriteData[i] = chip8->ram[chip8->reg.I + i];
+            // }
+// 
+            // x = Vx % window_width
+            uint16_t start_x = chip8->reg.Vx[chip8->instruction.X] % chip8->displayX;
+            // y = Vy % window_height
+            uint16_t start_y = chip8->reg.Vx[chip8->instruction.Y] % chip8->displayY;
+            // reset flags
+            chip8->reg.VF = 0;
+
+            Log_Info("Drawing sprite of size: [8-bits x %i], at V%1X(x): %i, V%1X(y): %i", chip8->instruction.N, chip8->instruction.X, start_x, chip8->instruction.Y, start_y);
+            break;
+
+            // // Display magic
+            // for (int row=0; row<chip8->instruction.N; row++)
+            // {
+            //     // Read in current row sprite data from RAM
+            //     uint8_t spriteData = chip8->ram[chip8->reg.I + row];
+
+            //     for (int pixel=0; pixel<8; pixel++)
+            //     {
+            //         bool currentPixel = *(chip8->display + (row*chip8->displayX) + pixel);
+
+            //         // Check X wrap condition
+            //         if (chip8->displayWrap)
+            //         {
+            //         }
+            //     }
+
+            // }
+
+
+        }
+        break;
         
         default:
             bad_instruction(currentAddress, chip8->instruction.opcode);
@@ -146,6 +203,7 @@ int emulate_instruction(chip8_t *chip8)
 
 void bad_instruction(uint16_t address, uint16_t opcode)
 {
+    printf("\n");
     Log_Warn("Address: 0x%04X, Unimplemented instruction: 0x%04X", address, opcode);
 }
 
@@ -165,5 +223,15 @@ int validate_PC(chip8_t chip8)
     if (chip8.reg.PC % 2 == 1)
         return Log_Err("Error, Chip-8 trying to execute non-even RAM address: 0x%04X", chip8.reg.PC);
     
+    return 0;
+}
+
+// Validate that the sprite instruction is correct
+int validate_sprite(chip8_t chip8)
+{
+    // Verify that n is within sprite size limits
+    if (chip8.instruction.N > 15)
+        return Log_Err("Sprite of size 0x%1X too big. Must be <= 15", chip8.instruction.N);
+
     return 0;
 }

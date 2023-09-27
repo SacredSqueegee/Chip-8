@@ -30,7 +30,8 @@ int main(int argc, char *argv[])
         .rom_path = "./roms/",
         .config_path = "./configs/",
         .text_rom_name = "textSprites.bin",
-        .entrypoint = 0x200
+        .entrypoint = 0x200,
+        .screenWrap = true
     };
 
     // Initialize SDL
@@ -301,13 +302,16 @@ int initialize_chip8(chip8_t *chip8, const config_t config, char *romName)
     int programSize = 4096-(chip8->entrypoint);
     if(load_rom(chip8->romPath, ramEntry_ptr, sizeof(uint8_t), programSize) != 0)
         return 1;
-    Log_Info("Loaded ROM: '%s', from: '%s', into RAM\n", chip8->romName, chip8->romPath);
+    Log_Info("Loaded ROM: '%s', from: '%s', into RAM", chip8->romName, chip8->romPath);
 
     // Set chip-8 defaults
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
     chip8->state = RUNNING;                         // Default Chip-8 state to on/running
     memset(&chip8->reg, '\0', sizeof(Registers_t)); // Zeroize Chip-8 registers
     chip8->reg.PC = chip8->entrypoint;              // Default PC to RAM entrypoint
+    chip8->displayX = config.window_width;          // Set display width
+    chip8->displayY = config.window_height;         // Set display height
+    chip8->displayWrap = config.screenWrap;         // Should sprite wrap display
 
     return 0;       // success
 }

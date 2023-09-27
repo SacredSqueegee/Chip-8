@@ -47,6 +47,7 @@ typedef struct
     const char *text_rom_name;
     
     const uint16_t entrypoint;
+    bool screenWrap;
 
 } config_t;
 

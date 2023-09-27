@@ -77,8 +77,12 @@ typedef struct {
     uint16_t stack[16];             // 16 Byte stack for function calling
     uint32_t displaySize;           // Size of the memory of the display
     bool *display;                  // Pointer to display data
+    uint16_t displayX;              // number of pixels for x direction of display
+    uint16_t displayY;              // number of pixels for y direction of display
+    bool displayWrap;               // should the sprites wrap on screen
     bool keypad[16];                // Hexadecimal keypad 0x0-0xF
     uint8_t *textSprites[16][5];    // Pointer to default text sprites
+    uint8_t spriteData[16];         // Temporary storage for sprite data
     char *romName;                  // Name of ROM currently loaded
     char *romPath;                  // Path to ROM currently loaded
 
@@ -91,5 +95,6 @@ int load_rom(char *romPath, void *dest, int sz_inp, int num_elements);
 int emulate_instruction(chip8_t *chip8);
 void bad_instruction(uint16_t address, uint16_t opcode);
 int validate_PC(chip8_t chip8);
+int validate_sprite(chip8_t chip8);
 
 #endif
