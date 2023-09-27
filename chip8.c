@@ -133,6 +133,12 @@ int emulate_instruction(chip8_t *chip8)
             Log_Info("Set V%01x to value: 0x%02X", chip8->instruction.X, chip8->instruction.KK);
             break;
         
+        case 0x7:
+            // 0x7xkk -> ADD Vx, byte
+            chip8->reg.Vx[chip8->instruction.X] += chip8->instruction.KK;
+            Log_Info("Add 0x%02X to register V%1x, V%1x value: 0x%02X", chip8->instruction.KK, chip8->instruction.X, chip8->instruction.X, chip8->reg.Vx[chip8->instruction.X]);
+            break;
+        
         case 0xA:
             // 0xAnnn -> LD I, addr
             chip8->reg.I = chip8->instruction.NNN;
@@ -148,43 +154,88 @@ int emulate_instruction(chip8_t *chip8)
                 Log_Err("Fatal error, shutting down...");
                 return 1;
             }
-                        
-            // // Read in sprite data @ addr I of length n-bytes
-            // for (int i=0; i<chip8->instruction.N; i++)
-            // {
-            //     chip8->spriteData[i] = chip8->ram[chip8->reg.I + i];
-            // }
-// 
+
             // x = Vx % window_width
             uint16_t start_x = chip8->reg.Vx[chip8->instruction.X] % chip8->displayX;
+            // uint16_t start_x = chip8->reg.Vx[chip8->instruction.X];
             // y = Vy % window_height
             uint16_t start_y = chip8->reg.Vx[chip8->instruction.Y] % chip8->displayY;
+            // uint16_t start_y = chip8->reg.Vx[chip8->instruction.Y];
             // reset flags
             chip8->reg.VF = 0;
 
-            Log_Info("Drawing sprite of size: [8-bits x %i], at V%1X(x): %i, V%1X(y): %i", chip8->instruction.N, chip8->instruction.X, start_x, chip8->instruction.Y, start_y);
-            break;
+            Log_Info("Drawing sprite at location: 0x%03X, of size: [8-bits x %i] , at display coordinates V%1X(x): %i, V%1X(y): %i", chip8->reg.I, chip8->instruction.N, chip8->instruction.X, start_x, chip8->instruction.Y, start_y);
 
-            // // Display magic
-            // for (int row=0; row<chip8->instruction.N; row++)
-            // {
-            //     // Read in current row sprite data from RAM
-            //     uint8_t spriteData = chip8->ram[chip8->reg.I + row];
+            // Log_Warn("display addr for update instruction: 0x%0X", chip8->display);
 
-            //     for (int pixel=0; pixel<8; pixel++)
-            //     {
-            //         bool currentPixel = *(chip8->display + (row*chip8->displayX) + pixel);
+            // 2D loop over sprite in sprite coordinates -> (pixel, row)
+            for (int row=0; row<chip8->instruction.N; row++)
+            {
+                // Read in current row sprite data from RAM
+                uint8_t spriteData = chip8->ram[chip8->reg.I + row];
+                // Log_Warn("Sprite row: 0x%02x", spriteData);
 
-            //         // Check X wrap condition
-            //         if (chip8->displayWrap)
-            //         {
-            //         }
-            //     }
+                // Convert sprite coordinates to display coordinates
+                uint16_t disp_y = (start_y + row);
+                // If wrapping, mod the coordinate
+                if (chip8->displayWrap)
+                    disp_y %= chip8->displayY;
 
-            // }
+                // loop over pixels in current row
+                for (int pixel=0; pixel<8; pixel++)
+                {
+                    // Convert sprite coordinates to display coordinates
+                    uint16_t disp_x = (start_x + pixel);
+                    // If wrapping, mod the coordinate
+                    if (chip8->displayWrap)
+                        disp_x %= chip8->displayX;
+                    
+                    // if we are not wrapping make sure that the display pixel is within the screen
+                    // other wise skip to next row
+                    if (disp_x >= chip8->displayX)
+                        break;
+
+                    // get the current state of the pixel being displayed
+                    int disp_Index = (disp_y * chip8->displayX) + disp_x;
+                    // bool *currentPixelAddr = chip8->display + (disp_y * chip8->displayX) + disp_x;
+                    // bool currentPixel = *(currentPixelAddr);
+                    bool currentPixel = *(chip8->display + disp_Index);
+
+                    // FIXME: You dumb shit, you reversed the bytes here...
+                    //          with your bad bit shift...
+                    // ============================================================================================
+                    // get the current state of the pixel in the sprite
+                    // bool spritePixel = (spriteData >> pixel) & 0x01;
+                    
+                    // printf("\t"); Log_Warn("sprite pixel: 0x%02x, display pixel: 0x%02x, display index: 0x%03X", spritePixel, currentPixel, disp_Index);
+
+                    // get the current state of the pixel in the sprite
+                    bool spritePixel = (spriteData >> (7 - pixel)) & 0x01;
+
+                    // Update pixels of Vf, we update pixels by XORing the specified sprite to the screen
+                    // Vf is only set when both the screen pixel and the sprite pixel are both on
+                    // Check pixel collision
+                    if (spritePixel && currentPixel)
+                    {
+                        *(chip8->display + disp_Index) = false;
+                        chip8->reg.VF = 1;
+                        // printf("\t\t"); Log_Err("unsetting pixel");
+                    }
+                    // Check if need to write pixel
+                    else if (spritePixel && !currentPixel)
+                    {
+                        // *(currentPixelAddr) = true;
+                        *(chip8->display + disp_Index) = true;
+                        // printf("\t\t"); Log_Warn("setting pixel");
+                    }
+                    // printf("\t"); Log_Warn("display addr: 0x%0X, index: 0x%03x, index addr: 0x%0X, value: 0x%02X", chip8->display, disp_Index, chip8->display + disp_Index, *(chip8->display + disp_Index));
+                }
+
+            }
 
 
         }
+        // chip8->state = QUIT;
         break;
         
         default:

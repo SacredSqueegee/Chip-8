@@ -93,7 +93,7 @@ void update_screen(sdl_t sdl, const config_t config, bool *display)
         sdl_clear_screen(sdl, config);
 
         // // Draw black rectangle
-        // SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
+        SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
 
         // // Draw checkerboard pattern
         // for(uint32_t i=0; i<config.window_height; i++)
@@ -119,7 +119,6 @@ void update_screen(sdl_t sdl, const config_t config, bool *display)
             {
                 // Draw pixel if it's on
                 int index = (i*config.window_width) + j;
-                // Log_Info("i: %i, j: %i, index: %i, value: %i", i, j, index, *(display + index));
                 if (*(display + index) == true)
                 {
                     SDL_FRect rect = {j*config.window_scale, i*config.window_scale, 1*config.window_scale, 1*config.window_scale};
@@ -195,6 +194,8 @@ void cleanup_sdl(sdl_t *sdl)
 void handle_input(sdl_t sdl, const config_t config, chip8_t *chip8)
 {
     SDL_Event e;
+    (void)config;
+    (void)sdl;
 
     // Poll for and handle events
     while (SDL_PollEvent(&e))
@@ -228,13 +229,13 @@ void handle_input(sdl_t sdl, const config_t config, chip8_t *chip8)
                         break;
                     
                     default:
-                        SDL_SetWindowSize(sdl.window, config.window_width*config.window_scale/2, config.window_height*config.window_scale/2);
+                        // SDL_SetWindowSize(sdl.window, config.window_width*config.window_scale/2, config.window_height*config.window_scale/2);
                         break;
                 }
                 break;
             
             case SDL_KEYUP:
-                SDL_SetWindowSize(sdl.window, config.window_width*config.window_scale, config.window_height*config.window_scale);
+                // SDL_SetWindowSize(sdl.window, config.window_width*config.window_scale, config.window_height*config.window_scale);
                 break;
             
             default:
