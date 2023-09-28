@@ -156,13 +156,11 @@ int emulate_instruction(chip8_t *chip8)
             break;
     }
 
-    // chip8->state = QUIT;
     return 0;
+    // Re-enable message logging / clear shenanigans from above
+    #undef Log_Info
 }
-// Re-enable message logging
-#ifndef INSTRUCTION_DEBUG
-#   undef Log_Info
-#endif
+
 
 
 void bad_instruction(uint16_t address, uint16_t opcode)

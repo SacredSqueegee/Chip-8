@@ -32,12 +32,9 @@
 			"**/.svn": true,
 			"**/.hg": true,
 			"**/CVS": true,
-			"**/.DS_Store": true,
-			".vscode/": true,
-			"Chip-8.code-workspace": true,
-			".gitignore": true
+			"**/.DS_Store": true
 		},
-		"hidefiles.selectedProfile": "Default",
+		"hidefiles.selectedProfile": "Show All Files",
 		"files.associations": {
 			"stdint.h": "c"
 		},
