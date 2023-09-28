@@ -91,26 +91,7 @@ int main(int argc, char *argv[])
 void update_screen(sdl_t sdl, const config_t config, bool *display)
 {
         sdl_clear_screen(sdl, config);
-
-        // // Draw black rectangle
         SDL_SetRenderDrawColor(sdl.renderer, config.fg_color.r, config.fg_color.g, config.fg_color.b, config.fg_color.a);
-
-        // // Draw checkerboard pattern
-        // for(uint32_t i=0; i<config.window_height; i++)
-        // {
-        //     for(uint32_t j=0; j<config.window_width; j++)
-        //     {
-        //         // Calc. current index in our 2D display array
-        //         int index = (i*config.window_width) + j;
-
-        //         if((j%2==0 && i%2==1) || (j%2==1 && i%2==0))
-        //         {
-        //             *(display + index) = false;
-        //             continue;
-        //         }
-        //         *(display + index) = true;
-        //     }
-        // }
 
         // Draw display
         for(uint32_t i=0; i<config.window_height; i++)
