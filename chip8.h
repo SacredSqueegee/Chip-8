@@ -98,6 +98,6 @@ int validate_PC(chip8_t chip8);
 int validate_sprite(chip8_t chip8);
 
 // Chip-8 Instruction functions, too big for switch statement
-int draw_instruction(chip8_t *chip8, uint16_t currentAddress);
+int draw_instruction(chip8_t *chip8);
 
 #endif

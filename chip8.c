@@ -147,8 +147,13 @@ int emulate_instruction(chip8_t *chip8)
         
         case 0xD:
             // 0xDxyn -> DRW Vx, Vy, nibble
-            if (draw_instruction(chip8, currentAddress) != 0)
+            if (draw_instruction(chip8) != 0)
                 return Log_Err("Fatal error, shutting down...");
+            
+            // start_x/y are the starting display coordinates of the sprite on screen
+            uint16_t start_x = chip8->reg.Vx[chip8->instruction.X] % chip8->displayX;
+            uint16_t start_y = chip8->reg.Vx[chip8->instruction.Y] % chip8->displayY;
+            Log_Info("Drawing sprite at location: 0x%03X, of size: [8-bits x %i] , at display coordinates V%1X(x): %i, V%1X(y): %i", chip8->reg.I, chip8->instruction.N, chip8->instruction.X, start_x, chip8->instruction.Y, start_y);
             break;
         
         default:
@@ -197,7 +202,7 @@ int validate_sprite(chip8_t chip8)
     return 0;
 }
 
-int draw_instruction(chip8_t *chip8, uint16_t currentAddress)
+int draw_instruction(chip8_t *chip8)
 {
     // Validate size of sprite is <= 15
     if (validate_sprite(*chip8) != 0)
@@ -208,8 +213,6 @@ int draw_instruction(chip8_t *chip8, uint16_t currentAddress)
     uint16_t start_y = chip8->reg.Vx[chip8->instruction.Y] % chip8->displayY;
     // reset flags
     chip8->reg.VF = 0;
-
-    Log_Info("Drawing sprite at location: 0x%03X, of size: [8-bits x %i] , at display coordinates V%1X(x): %i, V%1X(y): %i", chip8->reg.I, chip8->instruction.N, chip8->instruction.X, start_x, chip8->instruction.Y, start_y);
 
     // 2D loop over sprite in sprite coordinates -> (pixel, row)
     for (int row=0; row<chip8->instruction.N; row++)
