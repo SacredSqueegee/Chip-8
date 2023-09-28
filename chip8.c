@@ -146,97 +146,10 @@ int emulate_instruction(chip8_t *chip8)
             break;
         
         case 0xD:
-        // 0xDxyn -> DRW Vx, Vy, nibble
-        {
-            // Validate size of sprite is <= 15
-            if (validate_sprite(*chip8) != 0)
-            {
-                Log_Err("Fatal error, shutting down...");
-                return 1;
-            }
-
-            // x = Vx % window_width
-            uint16_t start_x = chip8->reg.Vx[chip8->instruction.X] % chip8->displayX;
-            // uint16_t start_x = chip8->reg.Vx[chip8->instruction.X];
-            // y = Vy % window_height
-            uint16_t start_y = chip8->reg.Vx[chip8->instruction.Y] % chip8->displayY;
-            // uint16_t start_y = chip8->reg.Vx[chip8->instruction.Y];
-            // reset flags
-            chip8->reg.VF = 0;
-
-            Log_Info("Drawing sprite at location: 0x%03X, of size: [8-bits x %i] , at display coordinates V%1X(x): %i, V%1X(y): %i", chip8->reg.I, chip8->instruction.N, chip8->instruction.X, start_x, chip8->instruction.Y, start_y);
-
-            // Log_Warn("display addr for update instruction: 0x%0X", chip8->display);
-
-            // 2D loop over sprite in sprite coordinates -> (pixel, row)
-            for (int row=0; row<chip8->instruction.N; row++)
-            {
-                // Read in current row sprite data from RAM
-                uint8_t spriteData = chip8->ram[chip8->reg.I + row];
-                // Log_Warn("Sprite row: 0x%02x", spriteData);
-
-                // Convert sprite coordinates to display coordinates
-                uint16_t disp_y = (start_y + row);
-                // If wrapping, mod the coordinate
-                if (chip8->displayWrap)
-                    disp_y %= chip8->displayY;
-
-                // loop over pixels in current row
-                for (int pixel=0; pixel<8; pixel++)
-                {
-                    // Convert sprite coordinates to display coordinates
-                    uint16_t disp_x = (start_x + pixel);
-                    // If wrapping, mod the coordinate
-                    if (chip8->displayWrap)
-                        disp_x %= chip8->displayX;
-                    
-                    // if we are not wrapping make sure that the display pixel is within the screen
-                    // other wise skip to next row
-                    if (disp_x >= chip8->displayX)
-                        break;
-
-                    // get the current state of the pixel being displayed
-                    int disp_Index = (disp_y * chip8->displayX) + disp_x;
-                    // bool *currentPixelAddr = chip8->display + (disp_y * chip8->displayX) + disp_x;
-                    // bool currentPixel = *(currentPixelAddr);
-                    bool currentPixel = *(chip8->display + disp_Index);
-
-                    // FIXME: You dumb shit, you reversed the bytes here...
-                    //          with your bad bit shift...
-                    // ============================================================================================
-                    // get the current state of the pixel in the sprite
-                    // bool spritePixel = (spriteData >> pixel) & 0x01;
-                    
-                    // printf("\t"); Log_Warn("sprite pixel: 0x%02x, display pixel: 0x%02x, display index: 0x%03X", spritePixel, currentPixel, disp_Index);
-
-                    // get the current state of the pixel in the sprite
-                    bool spritePixel = (spriteData >> (7 - pixel)) & 0x01;
-
-                    // Update pixels of Vf, we update pixels by XORing the specified sprite to the screen
-                    // Vf is only set when both the screen pixel and the sprite pixel are both on
-                    // Check pixel collision
-                    if (spritePixel && currentPixel)
-                    {
-                        *(chip8->display + disp_Index) = false;
-                        chip8->reg.VF = 1;
-                        // printf("\t\t"); Log_Err("unsetting pixel");
-                    }
-                    // Check if need to write pixel
-                    else if (spritePixel && !currentPixel)
-                    {
-                        // *(currentPixelAddr) = true;
-                        *(chip8->display + disp_Index) = true;
-                        // printf("\t\t"); Log_Warn("setting pixel");
-                    }
-                    // printf("\t"); Log_Warn("display addr: 0x%0X, index: 0x%03x, index addr: 0x%0X, value: 0x%02X", chip8->display, disp_Index, chip8->display + disp_Index, *(chip8->display + disp_Index));
-                }
-
-            }
-
-
-        }
-        // chip8->state = QUIT;
-        break;
+            // 0xDxyn -> DRW Vx, Vy, nibble
+            if (draw_instruction(chip8, currentAddress) != 0)
+                return Log_Err("Fatal error, shutting down...");
+            break;
         
         default:
             bad_instruction(currentAddress, chip8->instruction.opcode);
@@ -257,7 +170,6 @@ void bad_instruction(uint16_t address, uint16_t opcode)
     printf("\n");
     Log_Warn("Address: 0x%04X, Unimplemented instruction: 0x%04X", address, opcode);
 }
-
 
 // Validate that we are executing a correct address in RAM
 int validate_PC(chip8_t chip8)
@@ -284,5 +196,75 @@ int validate_sprite(chip8_t chip8)
     if (chip8.instruction.N > 15)
         return Log_Err("Sprite of size 0x%1X too big. Must be <= 15", chip8.instruction.N);
 
+    return 0;
+}
+
+int draw_instruction(chip8_t *chip8, uint16_t currentAddress)
+{
+    // Validate size of sprite is <= 15
+    if (validate_sprite(*chip8) != 0)
+        return 1;
+
+    // start_x/y are the starting display coordinates of the sprite on screen
+    uint16_t start_x = chip8->reg.Vx[chip8->instruction.X] % chip8->displayX;
+    uint16_t start_y = chip8->reg.Vx[chip8->instruction.Y] % chip8->displayY;
+    // reset flags
+    chip8->reg.VF = 0;
+
+    Log_Info("Drawing sprite at location: 0x%03X, of size: [8-bits x %i] , at display coordinates V%1X(x): %i, V%1X(y): %i", chip8->reg.I, chip8->instruction.N, chip8->instruction.X, start_x, chip8->instruction.Y, start_y);
+
+    // 2D loop over sprite in sprite coordinates -> (pixel, row)
+    for (int row=0; row<chip8->instruction.N; row++)
+    {
+        // Read in current row sprite data from RAM
+        uint8_t spriteData = chip8->ram[chip8->reg.I + row];
+
+        // Convert sprite coordinates to display coordinates
+        uint16_t disp_y = (start_y + row);
+        if (chip8->displayWrap)
+            disp_y %= chip8->displayY;      // wrap sprite
+
+        // loop over pixels in current row
+        for (int pixel=0; pixel<8; pixel++)
+        {
+            // Convert sprite coordinates to display coordinates
+            uint16_t disp_x = (start_x + pixel);
+            if (chip8->displayWrap)
+                disp_x %= chip8->displayX;  // wrap sprite
+            
+            // if we are not wrapping make sure that the display pixel is within the screen
+            // other wise skip to next row
+            if (disp_x >= chip8->displayX)
+                break;
+
+            // get the current state of the pixel being displayed
+            int disp_Index = (disp_y * chip8->displayX) + disp_x;
+            bool currentPixel = *(chip8->display + disp_Index);
+
+            // FIXME: You dumb shit, you reversed the bytes here...
+            //          with your bad bit shift...
+            // ============================================================================================
+            // get the current state of the pixel in the sprite
+            // bool spritePixel = (spriteData >> pixel) & 0x01;
+            
+            // get the current state of the pixel in the sprite
+            bool spritePixel = (spriteData >> (7 - pixel)) & 0x01;
+
+            // Update pixels of Vf, we update pixels by XORing the specified sprite to the screen
+            // Vf is only set when both the screen pixel and the sprite pixel are both on
+            // Check pixel collision
+            if (spritePixel && currentPixel)
+            {
+                *(chip8->display + disp_Index) = false;
+                chip8->reg.VF = 1;
+            }
+            // Check if need to write pixel
+            else if (spritePixel && !currentPixel)
+            {
+                // *(currentPixelAddr) = true;
+                *(chip8->display + disp_Index) = true;
+            }
+        }
+    }
     return 0;
 }
