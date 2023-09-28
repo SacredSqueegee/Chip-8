@@ -241,6 +241,7 @@ int draw_instruction(chip8_t *chip8, uint16_t currentAddress)
 
             // FIXME: You dumb shit, you reversed the bytes here...
             //          with your bad bit shift...
+            //          hours wasted debugging this: 3.5 hrs
             // ============================================================================================
             // get the current state of the pixel in the sprite
             // bool spritePixel = (spriteData >> pixel) & 0x01;
